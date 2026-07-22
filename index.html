@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Maison — Fine Dining Restaurant</title>
+    <meta name="description"
+        content="Welcome to La Maison. Experience exquisite fine dining with crafted dishes, premium ingredients, and an unforgettable atmosphere.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- ── Navigation ─────────────────────────────────────────── -->
+    <nav class="main-nav">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">
+                <img src="image.svg" alt="La Maison Logo" class="logo-icon">
+                <span class="logo-text">La Maison</span>
+            </a>
+
+            <!-- Checkbox hack for mobile toggle (no JS) -->
+            <input type="checkbox" id="navToggle" class="nav-toggle-checkbox">
+            <label for="navToggle" class="nav-toggle-label" aria-label="Toggle menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </label>
+
+            <ul class="nav-links">
+                <li><a href="index.html" class="active">Home</a></li>
+                <li><a href="menu.php">Menu</a></li>
+                <li><a href="about.php">About</a></li>
+                <li><a href="contact.php">Contact</a></li>
+                <li>
+                    <a href="menu.php" class="nav-order-btn">
+                        Order Now
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ── Hero Section ────────────────────────────────────────── -->
+    <section class="hero home-hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="hero-tag">Est. 2008 · Fine Dining</div>
+            <h1>La Maison</h1>
+            <p class="hero-subtitle">Where culinary artistry meets timeless elegance</p>
+            <div class="divider"><span></span></div>
+            <div class="hero-cta">
+                <a href="menu.php" class="btn btn-primary">View Our Menu</a>
+                <a href="contact.php" class="btn btn-outline">Reserve a Table</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Welcome Section ─────────────────────────────────────── -->
+    <section class="section welcome-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Welcome</span>
+                <h2>A Culinary Journey Awaits</h2>
+                <p class="section-subtitle">Step into a world where every bite is a masterpiece, every sip a revelation, and
+                    every moment an unforgettable memory.</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🍳</div>
+                    <h3>Master Chefs</h3>
+                    <p>Our award-winning culinary team crafts each dish with precision, passion, and creativity that pushes
+                        the boundaries of taste.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🌿</div>
+                    <h3>Fresh Ingredients</h3>
+                    <p>We source only the finest seasonal produce from local farms and trusted suppliers to ensure
+                        extraordinary quality.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🍷</div>
+                    <h3>Fine Wines</h3>
+                    <p>Our sommelier curates an exclusive collection of wines from the world's most prestigious vineyards
+                        and cellars.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Featured Dishes ─────────────────────────────────────── -->
+    <section class="section featured-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Signature</span>
+                <h2>Featured Dishes</h2>
+                <p class="section-subtitle">Handpicked favourites from our chef's curated selection</p>
+            </div>
+
+            <div class="featured-grid">
+                <div class="featured-card">
+                    <div class="featured-img-wrap">
+                        <img src="Grilled Salmon.jfif"
+                            alt="Grilled Salmon Fillet" loading="lazy">
+                        <span class="featured-badge">Chef's Pick</span>
+                    </div>
+                    <div class="featured-body">
+                        <div class="featured-meta">
+                            <h3>Grilled Salmon Fillet</h3>
+                            <span class="featured-price">₹520.00</span>
+                        </div>
+                        <p>Atlantic salmon, herb-crusted, served on saffron risotto with asparagus and lemon beurre blanc.
+                        </p>
+                        <a href="menu.php" class="btn btn-small">Order Now →</a>
+                    </div>
+                </div>
+
+                <div class="featured-card">
+                    <div class="featured-img-wrap">
+                        <img src="Soup.jfif"
+                            alt="Soup" loading="lazy">
+                        <span class="featured-badge">Premium</span>
+                    </div>
+                    <div class="featured-body">
+                        <div class="featured-meta">
+                            <h3>Creamy Mushroom Soup</h3>
+                            <span class="featured-price">₹120.00</span>
+                        </div>
+                        <p>Velvety blend of wild forest mushrooms with truffle oil, cream, and fresh thyme croutons.</p>
+                        <a href="menu.php" class="btn btn-small">Order Now →</a>
+                    </div>
+                </div>
+
+                <div class="featured-card">
+                    <div class="featured-img-wrap">
+                        <img src="tiramisu.jfif"
+                            alt="Classic Tiramisu" loading="lazy">
+                        <span class="featured-badge">Popular</span>
+                    </div>
+                    <div class="featured-body">
+                        <div class="featured-meta">
+                            <h3>Classic Tiramisu</h3>
+                            <span class="featured-price">₹150.00</span>
+                        </div>
+                        <p>Mascarpone cream layered with espresso-soaked ladyfingers, dusted with Valrhona cocoa.</p>
+                        <a href="menu.php" class="btn btn-small">Order Now →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Testimonials ────────────────────────────────────────── -->
+    <section class="section testimonials-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Reviews</span>
+                <h2>What Our Guests Say</h2>
+            </div>
+
+            <div class="testimonial-grid">
+                <div class="testimonial-card">
+                    <div class="stars">★★★★★</div>
+                    <p>"An absolutely remarkable dining experience. The salmon was cooked to perfection and the ambiance was
+                        unparalleled."</p>
+                    <div class="testimonial-author">
+                        <strong>Bonnie Blue</strong>
+                        <span>Famous Personality,England</span>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="stars">★★★★★</div>
+                    <p>"La Maison consistently delivers extraordinary flavours. The tenderloin steak is the best I've had in
+                        Europe."</p>
+                    <div class="testimonial-author">
+                        <strong>James Whitfield</strong>
+                        <span>Regular Guest</span>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="stars">★★★★★</div>
+                    <p>"From the moment you walk in, you know you're somewhere special. Every detail is thoughtfully
+                        curated."</p>
+                    <div class="testimonial-author">
+                        <strong>Maria Rossi</strong>
+                        <span>Travel Blogger</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── CTA Banner ──────────────────────────────────────────── -->
+    <section class="cta-banner">
+        <div class="container">
+            <h2>Ready for an Unforgettable Evening?</h2>
+            <p>Reserve your table today or explore our full menu online.</p>
+            <div class="cta-buttons">
+                <a href="menu.php" class="btn btn-primary">Browse Menu</a>
+                <a href="contact.php" class="btn btn-outline">Make a Reservation</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Footer ─────────────────────────────────────────────── -->
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-col footer-brand">
+                <div class="footer-logo">
+                    <img src="image.svg" width="100px" height="100px" alt="La Maison Logo" class="logo-icon">
+                    <span class="logo-text">La Maison</span>
+                </div>
+                <p>Crafted with passion — every dish tells a story. Fine dining since 2008.</p>
+            </div>
+
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="menu.php">Menu</a></li>
+                    <li><a href="about.php">About Us</a></li>
+                    <li><a href="contact.php">Contact</a></li>
+                    <li><a href="surprise.php">Surprise</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Opening Hours</h4>
+                <ul>
+                    <li>Mon – Fri: 11am – 10pm</li>
+                    <li>Saturday: 10am – 11pm</li>
+                    <li>Sunday: 10am – 9pm</li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Contact</h4>
+                <ul>
+                    <li>📍Plot No. 21, Ward 5/B, Adipur,<br>Gandhidham, Gujarat 370205</li>
+                    <li>📞 +91 90994-34638</li>
+                    <li>✉️ hello@lamaison.com</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; <span id="current-year">2026</span> La Maison. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+</body>
+
+</html>
