@@ -77,7 +77,7 @@ $menu = [
         'desc' => 'Toasted sourdough topped with marinated cherry tomatoes, fresh basil, and a drizzle of aged balsamic.',
         'price' => 280.00,
         'badge' => 'Non-Veg',
-        'img' => 'Bruschetta.jfif',
+        'img' => '../Image_Content/Bruschetta.jfif',
     ],
     [
         'id' => 's2',
@@ -86,7 +86,7 @@ $menu = [
         'desc' => 'Velvety blend of wild forest mushrooms with truffle oil, cream, and fresh thyme croutons.',
         'price' => 120.00,
         'badge' => 'Veg',
-        'img' => 'Soup.jfif',
+        'img' => '../Image_Content/Soup.jfif',
     ],
     [
         'id' => 's3',
@@ -95,7 +95,7 @@ $menu = [
         'desc' => 'Lightly dusted and fried squid rings served with house spicy marinara and lemon wedge.',
         'price' => 350.00,
         'badge' => 'Non-Veg',
-        'img' => 'Calamari_fritti.jfif',
+        'img' => '../Image_Content/Calamari_fritti.jfif',
     ],
     [
         'id' => 'm1',
@@ -104,7 +104,7 @@ $menu = [
         'desc' => 'Atlantic salmon, herb-crusted, served on saffron risotto with asparagus and lemon beurre blanc.',
         'price' => 520.00,
         'badge' => 'Non-Veg',
-        'img' => 'Grilled Salmon.jfif',
+        'img' => '../Image_Content/Grilled Salmon.jfif',
     ],
     [
         'id' => 'm2',
@@ -113,7 +113,7 @@ $menu = [
         'desc' => '220g prime-cut fillet, pan-seared with garlic butter, served with truffle fries and roasted veggies.',
         'price' => 320.00,
         'badge' => 'Veg',
-        'img' => 'Spaghetti.jfif',
+        'img' => '../Image_Content/Spaghetti.jfif',
     ],
     [
         'id' => 'm3',
@@ -122,7 +122,7 @@ $menu = [
         'desc' => 'Fresh tagliatelle tossed with porcini, cremini, and shiitake mushrooms in a garlic white wine cream sauce.',
         'price' => 175.00,
         'badge' => 'Veg',
-        'img' => 'Pasta.jfif',
+        'img' => '../Image_Content/Pasta.jfif',
     ],
     [
         'id' => 'm4',
@@ -140,7 +140,7 @@ $menu = [
         'desc' => 'Mascarpone cream layered with espresso-soaked ladyfingers, dusted with Valrhona cocoa.',
         'price' => 150.00,
         'badge' => 'Veg',
-        'img' => 'tiramisu.jfif',
+        'img' => '../Image_Content/tiramisu.jfif',
     ],
     [
         'id' => 'd2',
@@ -149,7 +149,7 @@ $menu = [
         'desc' => 'Dark chocolate lava cake with a molten centre, served with vanilla bean ice cream.',
         'price' => 105.00,
         'badge' => 'Veg',
-        'img' => 'warm chocolate.jfif',
+        'img' => '../Image_Content/warm chocolate.jfif',
     ],
     [
         'id' => 'dr1',
@@ -173,7 +173,7 @@ $menu = [
 
 $categories = array_unique(array_column($menu, 'category'));
 
-include 'includes/header.php';
+include '../includes/header.php';
 ?>
 
 <!-- ── Toast notification ──────────────────────────────────── -->
@@ -334,4 +334,4 @@ include 'includes/header.php';
     </div>
 <?php endif; ?>
 
-<?php include 'includes/footer.php'; ?>
+<?php include '../includes/footer.php'; ?>

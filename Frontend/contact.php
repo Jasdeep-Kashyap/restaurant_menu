@@ -2,7 +2,7 @@
 $page_title = 'Contact Us — La Maison';
 $page_desc = 'Get in touch with La Maison. Find our address, opening hours, phone number, or send us a message to book a table.';
 
-require_once 'db.php';
+require_once '../includes/db.php';
 
 $form_sent = false;
 $form_error = '';
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['contact_submit'])) {
 }
 
 
-include 'includes/header.php';
+include '../includes/header.php';
 ?>
 
 <!-- ── Hero ───────────────────────────────────────────────── -->
@@ -146,4 +146,4 @@ include 'includes/header.php';
     </div>
 </section>
 
-<?php include 'includes/footer.php'; ?>
+<?php include '../includes/footer.php'; ?>

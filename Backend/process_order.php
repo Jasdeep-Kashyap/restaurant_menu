@@ -3,7 +3,7 @@
 // Validates input, saves to DB, returns to menu with result flag.
 
 session_start();
-require_once 'includes/db.php';
+require_once '../includes/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: menu.php');

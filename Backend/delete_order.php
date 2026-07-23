@@ -1,7 +1,7 @@
 <?php
 // delete_order.php — Handles POST request to remove a served order from DB
 
-require_once 'includes/db.php';
+require_once '../includes/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: orders.php');

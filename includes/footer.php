@@ -3,7 +3,7 @@
     <div class="footer-inner">
         <div class="footer-col footer-brand">
             <div class="footer-logo">
-                <img src="image.svg" width="100px" height="100px" alt="La Maison Logo" class="logo-icon">
+                <img src="../Image_Content/image.svg" width="100px" height="100px" alt="La Maison Logo" class="logo-icon">
                 <span class="logo-text">La Maison</span>
             </div>
             <p>Crafted with passion — every dish tells a story. Fine dining since 2008.</p>
@@ -12,11 +12,11 @@
         <div class="footer-col">
             <h4>Quick Links</h4>
             <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="menu.php">Menu</a></li>
-                <li><a href="about.php">About Us</a></li>
-                <li><a href="contact.php">Contact</a></li>
-                <li><a href="surprise.php">Surprise</a></li>
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../Backend/menu.php">Menu</a></li>
+                <li><a href="../Frontend/about.php">About Us</a></li>
+                <li><a href="../Frontend/contact.php">Contact</a></li>
+                <li><a href="../Frontend/suprise.html">Surprise</a></li>
             </ul>
         </div>
 

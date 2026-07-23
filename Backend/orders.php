@@ -3,8 +3,8 @@
 $page_title = 'Order Dashboard — La Maison';
 $page_desc  = 'Real-time order tracking dashboard for La Maison restaurant.';
 
-require_once 'includes/db.php';
-include 'includes/header.php';
+require_once '../includes/db.php';
+include '../includes/header.php';
 
 $orders = $pdo->query(
     "SELECT id, customer_name, items, total_price, order_time FROM orders ORDER BY order_time DESC"
@@ -193,7 +193,7 @@ $del_msg    = $_GET['msg']  ?? '';
     <?php endif; ?>
 </div>
 
-<?php include 'includes/footer.php'; ?>
+<?php include '../includes/footer.php'; ?>
 
 <style>
 /* ── Orders Dashboard Styles ─────────────────────────────────── */

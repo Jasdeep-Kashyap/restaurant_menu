@@ -16,7 +16,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <link
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,500&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 
 <body>
@@ -24,8 +24,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <!-- ── Navigation ─────────────────────────────────────────── -->
     <nav class="main-nav">
         <div class="nav-inner">
-            <a href="index.html" class="nav-logo">
-                <img src="image.svg" alt="La Maison Logo" class="logo-icon">
+            <a href="../index.html" class="nav-logo">
+                <img src="../Image_Content/image.svg" alt="La Maison Logo" class="logo-icon">
                 <span class="logo-text">La Maison</span>
             </a>
 
@@ -38,13 +38,13 @@ $current_page = basename($_SERVER['PHP_SELF']);
             </label>
 
             <ul class="nav-links">
-                <li><a href="index.html" class="<?= ($current_page === 'index.php' || $current_page === 'index.html') ? 'active' : '' ?>">Home</a></li>
-                <li><a href="menu.php" class="<?= $current_page === 'menu.php' ? 'active' : '' ?>">Menu</a></li>
-                <li><a href="about.php" class="<?= $current_page === 'about.php' ? 'active' : '' ?>">About</a></li>
-                <li><a href="contact.php" class="<?= $current_page === 'contact.php' ? 'active' : '' ?>">Contact</a>
+                <li><a href="../index.html" class="<?= ($current_page === 'index.php' || $current_page === 'index.html') ? 'active' : '' ?>">Home</a></li>
+                <li><a href="../Backend/menu.php" class="<?= $current_page === 'menu.php' ? 'active' : '' ?>">Menu</a></li>
+                <li><a href="../Frontend/about.php" class="<?= $current_page === 'about.php' ? 'active' : '' ?>">About</a></li>
+                <li><a href="../Frontend/contact.php" class="<?= $current_page === 'contact.php' ? 'active' : '' ?>">Contact</a>
                 </li>
                 <li>
-                    <a href="menu.php" class="nav-order-btn">
+                    <a href="../Backend/menu.php" class="nav-order-btn">
                         Order Now
                     </a>
                 </li>

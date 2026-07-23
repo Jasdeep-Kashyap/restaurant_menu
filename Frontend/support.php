@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['support_submit'])) {
     }
 }
 
-include 'includes/header.php';
+include '../includes/header.php';
 ?>
 
 <!-- ── Hero ─────────────────────────────────────────────────── -->
@@ -92,7 +92,7 @@ include 'includes/header.php';
                 ['q' => 'Can I get a refund for my order?',
                  'a' => 'Yes. If your order is incorrect or unsatisfactory, please inform your server immediately. Refunds or replacements are offered at the manager\'s discretion. We always aim to make things right.'],
                 ['q' => 'How does online ordering work?',
-                 'a' => 'Browse our <a href="menu.php" style="color:var(--gold)">Menu</a>, add items to your cart, enter your name, and click "Place Order". Your order is sent directly to our kitchen — no account required.'],
+                 'a' => 'Browse our <a href="../Backend/menu.php" style="color:var(--gold)">Menu</a>, add items to your cart, enter your name, and click "Place Order". Your order is sent directly to our kitchen — no account required.'],
                 ['q' => 'Do you offer reservations?',
                  'a' => 'Absolutely! You can book a table via our <a href="contact.php" style="color:var(--gold)">Contact page</a> or call us directly. We recommend booking at least 24 hours in advance for weekends.'],
                 ['q' => 'Are takeaway and delivery available?',
@@ -237,7 +237,7 @@ include 'includes/header.php';
 
 </div><!-- /.sp-wrap -->
 
-<?php include 'includes/footer.php'; ?>
+<?php include '../includes/footer.php'; ?>
 
 <style>
 /* ── Support Page Styles ─────────────────────────────────────── */
@@ -738,13 +738,13 @@ include 'includes/header.php';
             try {
                 // If there's no stored count, fetch it first time
                 if (typeof window.lastOrderCount === 'undefined') {
-                    const res = await fetch('check_orders.php');
+                    const res = await fetch('../Backend/check_orders.php');
                     const data = await res.json();
                     window.lastOrderCount = data.count;
                     window.lastMaxId = data.max_id;
                     return;
                 }
-                const res = await fetch('check_orders.php');
+                const res = await fetch('../Backend/check_orders.php');
                 const data = await res.json();
                 if (data.max_id > window.lastMaxId || data.count !== window.lastOrderCount) {
                     window.location.href = window.location.pathname;

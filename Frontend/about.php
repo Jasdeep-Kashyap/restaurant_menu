@@ -1,7 +1,7 @@
 <?php
 $page_title = 'About Us — La Maison';
 $page_desc  = 'Learn the story behind La Maison — our history, philosophy, and the passionate team behind every unforgettable dish.';
-include 'includes/header.php';
+include '../includes/header.php';
 ?>
 
 <!-- ── Hero ───────────────────────────────────────────────── -->
@@ -84,10 +84,10 @@ include 'includes/header.php';
         <h2>Come Experience La Maison</h2>
         <p>Book a table and let us create an unforgettable evening for you.</p>
         <div class="cta-buttons">
-            <a href="menu.php" class="btn btn-primary">View Menu</a>
+            <a href="../Backend/menu.php" class="btn btn-primary">View Menu</a>
             <a href="contact.php" class="btn btn-outline">Reserve a Table</a>
         </div>
     </div>
 </section>
 
-<?php include 'includes/footer.php'; ?>
+<?php include '../includes/footer.php'; ?>

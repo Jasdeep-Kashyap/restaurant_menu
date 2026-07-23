@@ -1,6 +1,6 @@
 <?php
 // check_orders.php - API endpoint to get the latest order state
-require_once 'includes/db.php';
+require_once '../includes/db.php';
 
 header('Content-Type: application/json');
 
