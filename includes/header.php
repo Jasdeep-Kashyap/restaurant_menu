@@ -24,7 +24,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <!-- ── Navigation ─────────────────────────────────────────── -->
     <nav class="main-nav">
         <div class="nav-inner">
-            <a href="index.php" class="nav-logo">
+            <a href="index.html" class="nav-logo">
                 <img src="image.svg" alt="La Maison Logo" class="logo-icon">
                 <span class="logo-text">La Maison</span>
             </a>
@@ -38,7 +38,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             </label>
 
             <ul class="nav-links">
-                <li><a href="index.php" class="<?= $current_page === 'index.php' ? 'active' : '' ?>">Home</a></li>
+                <li><a href="index.html" class="<?= ($current_page === 'index.php' || $current_page === 'index.html') ? 'active' : '' ?>">Home</a></li>
                 <li><a href="menu.php" class="<?= $current_page === 'menu.php' ? 'active' : '' ?>">Menu</a></li>
                 <li><a href="about.php" class="<?= $current_page === 'about.php' ? 'active' : '' ?>">About</a></li>
                 <li><a href="contact.php" class="<?= $current_page === 'contact.php' ? 'active' : '' ?>">Contact</a>

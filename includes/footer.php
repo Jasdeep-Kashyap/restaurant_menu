@@ -12,7 +12,7 @@
         <div class="footer-col">
             <h4>Quick Links</h4>
             <ul>
-                <li><a href="index.php">Home</a></li>
+                <li><a href="index.html">Home</a></li>
                 <li><a href="menu.php">Menu</a></li>
                 <li><a href="about.php">About Us</a></li>
                 <li><a href="contact.php">Contact</a></li>
