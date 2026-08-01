@@ -1633,3 +1633,785 @@ tbody td:first-child { color: var(--text); font-weight: 500; }
 
     .featured-grid { grid-template-columns: 1fr; }
 }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   ADMIN PANEL
+   ═══════════════════════════════════════════════════════════════ */
+
+.adm-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px 80px;
+}
+
+/* ── Stat Cards ────────────────────────────────────────────── */
+.adm-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 18px;
+    margin-bottom: 32px;
+}
+
+.adm-stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-card);
+    padding: 24px 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.adm-stat-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(232,169,60,0.04), transparent 60%);
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.adm-stat-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(232,169,60,0.2);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+}
+
+.adm-stat-card:hover::before { opacity: 1; }
+
+.adm-stat-icon {
+    font-size: 2rem;
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    background: var(--gold-10);
+    border: 1px solid var(--gold-20);
+    flex-shrink: 0;
+}
+
+.adm-stat-info {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 1;
+}
+
+.adm-stat-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    font-family: var(--font-display);
+    color: var(--text);
+    line-height: 1.1;
+}
+
+.adm-stat-label {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+}
+
+/* ── Toolbar ───────────────────────────────────────────────── */
+.adm-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.adm-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.adm-filter-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.adm-add-btn {
+    padding: 12px 24px !important;
+    font-size: 0.92rem !important;
+    white-space: nowrap;
+    border: none;
+    cursor: pointer;
+}
+
+/* ── Table ─────────────────────────────────────────────────── */
+.adm-table-wrap {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.adm-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.adm-table thead th {
+    background: rgba(232,169,60,0.08);
+    color: var(--gold);
+    font-weight: 600;
+    padding: 14px 16px;
+    text-align: left;
+    font-size: 0.78rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    white-space: nowrap;
+}
+
+.adm-table tbody tr {
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.2s;
+}
+
+.adm-table tbody tr:last-child { border-bottom: none; }
+
+.adm-table tbody tr:hover {
+    background: rgba(232,169,60,0.04);
+}
+
+.adm-table tbody td {
+    padding: 12px 16px;
+    color: var(--muted);
+    vertical-align: middle;
+}
+
+.adm-row-hidden {
+    opacity: 0.5;
+}
+
+.adm-row-hidden:hover {
+    opacity: 0.85;
+}
+
+/* Table: Thumbnail */
+.th-img { width: 64px; }
+
+.adm-thumb {
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--card-border);
+    flex-shrink: 0;
+}
+
+.adm-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Table: Name cell */
+.adm-name-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.adm-name-cell strong {
+    color: var(--text);
+    font-size: 0.95rem;
+}
+
+.adm-item-id {
+    font-size: 0.75rem;
+    color: rgba(122,128,144,0.6);
+    font-family: monospace;
+}
+
+/* Table: Category badge */
+.adm-cat-badge {
+    display: inline-block;
+    background: rgba(232,169,60,0.08);
+    border: 1px solid rgba(232,169,60,0.15);
+    color: var(--gold);
+    padding: 3px 10px;
+    border-radius: 50px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+/* Table: Veg/Non-Veg badge */
+.adm-badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 50px;
+}
+
+.badge-veg {
+    background: rgba(46,213,115,0.1);
+    border: 1px solid rgba(46,213,115,0.2);
+    color: var(--success);
+}
+
+.badge-nonveg {
+    background: rgba(255,71,87,0.1);
+    border: 1px solid rgba(255,71,87,0.2);
+    color: var(--error);
+}
+
+/* Table: Sort order */
+.td-sort {
+    font-family: monospace;
+    font-size: 0.85rem;
+    color: var(--muted) !important;
+}
+
+/* ── Visibility Toggle ─────────────────────────────────────── */
+.adm-toggle-form {
+    display: inline;
+}
+
+.adm-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 4px;
+    transition: var(--transition);
+}
+
+.toggle-track {
+    width: 40px;
+    height: 22px;
+    border-radius: 11px;
+    position: relative;
+    transition: var(--transition);
+    flex-shrink: 0;
+}
+
+.toggle-knob {
+    position: absolute;
+    top: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+.toggle-on .toggle-track {
+    background: rgba(46,213,115,0.25);
+    border: 1px solid rgba(46,213,115,0.4);
+}
+
+.toggle-on .toggle-knob {
+    background: var(--success);
+    left: 21px;
+    box-shadow: 0 2px 6px rgba(46,213,115,0.4);
+}
+
+.toggle-on .toggle-label {
+    color: var(--success);
+}
+
+.toggle-off .toggle-track {
+    background: rgba(255,71,87,0.15);
+    border: 1px solid rgba(255,71,87,0.3);
+}
+
+.toggle-off .toggle-knob {
+    background: var(--error);
+    left: 3px;
+    box-shadow: 0 2px 6px rgba(255,71,87,0.3);
+}
+
+.toggle-off .toggle-label {
+    color: var(--error);
+}
+
+.adm-toggle:hover { opacity: 0.8; }
+
+/* ── Action Buttons ────────────────────────────────────────── */
+.th-actions { width: 180px; }
+
+.td-actions {
+    display: flex;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.adm-action-btn {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: transparent;
+}
+
+.adm-edit-btn {
+    color: var(--gold);
+    border-color: rgba(232,169,60,0.3);
+}
+
+.adm-edit-btn:hover {
+    background: rgba(232,169,60,0.1);
+    border-color: var(--gold);
+}
+
+.adm-delete-btn {
+    color: var(--error);
+    border-color: rgba(255,71,87,0.25);
+}
+
+.adm-delete-btn:hover {
+    background: rgba(255,71,87,0.1);
+    border-color: var(--error);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ADMIN — MODALS
+   ═══════════════════════════════════════════════════════════════ */
+
+.adm-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.adm-modal-backdrop.adm-modal-visible {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.adm-modal {
+    background: var(--surface);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 620px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 36px;
+    position: relative;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
+    transform: translateY(20px) scale(0.97);
+    transition: transform 0.3s ease;
+}
+
+.adm-modal-backdrop.adm-modal-visible .adm-modal {
+    transform: translateY(0) scale(1);
+}
+
+.adm-modal-sm {
+    max-width: 440px;
+    text-align: center;
+}
+
+.adm-modal-close {
+    position: absolute;
+    top: 16px;
+    right: 18px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 1.6rem;
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+.adm-modal-close:hover {
+    background: rgba(255,255,255,0.06);
+    color: var(--text);
+}
+
+.adm-modal-header {
+    margin-bottom: 28px;
+}
+
+.adm-modal-icon {
+    font-size: 2.4rem;
+    display: block;
+    margin-bottom: 12px;
+}
+
+.adm-modal-icon-danger {
+    filter: hue-rotate(0deg);
+}
+
+.adm-modal-header h3 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, #fff 40%, var(--gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.adm-modal-header p {
+    color: var(--muted);
+    font-size: 0.92rem;
+    line-height: 1.6;
+}
+
+/* ── Admin Form ────────────────────────────────────────────── */
+.adm-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.adm-form .form-group label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    display: block;
+}
+
+.adm-form .form-group input,
+.adm-form .form-group textarea,
+.adm-form .form-group select {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    padding: 12px 16px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+}
+
+.adm-form .form-group select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='%237a8090'%3E%3Cpath d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+}
+
+.adm-form .form-group select option {
+    background: var(--surface);
+    color: var(--text);
+}
+
+.adm-form .form-group input:focus,
+.adm-form .form-group textarea:focus,
+.adm-form .form-group select:focus {
+    border-color: rgba(232,169,60,0.4);
+}
+
+.adm-form .form-group input::placeholder,
+.adm-form .form-group textarea::placeholder {
+    color: rgba(122,128,144,0.5);
+}
+
+.adm-form .form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.field-hint {
+    display: block;
+    font-size: 0.75rem;
+    color: rgba(122,128,144,0.6);
+    margin-top: 4px;
+}
+
+/* ── Checkbox ──────────────────────────────────────────────── */
+.adm-checkbox-label {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding-top: 26px;
+    text-transform: none !important;
+    font-size: 0.92rem !important;
+    letter-spacing: 0 !important;
+    color: var(--text) !important;
+}
+
+.adm-checkbox-label input[type="checkbox"] {
+    display: none;
+}
+
+.adm-checkbox-custom {
+    width: 22px;
+    height: 22px;
+    border: 2px solid rgba(255,255,255,0.15);
+    border-radius: 6px;
+    position: relative;
+    transition: var(--transition);
+    flex-shrink: 0;
+}
+
+.adm-checkbox-label input:checked + .adm-checkbox-custom {
+    background: var(--gold);
+    border-color: var(--gold);
+}
+
+.adm-checkbox-label input:checked + .adm-checkbox-custom::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #0c0e11;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+/* ── Image Upload ──────────────────────────────────────────── */
+.adm-upload-area {
+    position: relative;
+    border: 2px dashed rgba(255,255,255,0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: var(--transition);
+    cursor: pointer;
+    min-height: 140px;
+}
+
+.adm-upload-area:hover,
+.adm-upload-dragover {
+    border-color: rgba(232,169,60,0.4);
+    background: rgba(232,169,60,0.04);
+}
+
+.adm-upload-area input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+}
+
+.adm-upload-prompt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.upload-icon {
+    font-size: 2rem;
+    opacity: 0.6;
+}
+
+.upload-hint {
+    font-size: 0.78rem;
+    color: rgba(122,128,144,0.5);
+}
+
+.adm-upload-preview {
+    position: relative;
+    padding: 12px;
+}
+
+.adm-upload-preview img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.adm-upload-remove {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 28px;
+    height: 28px;
+    background: rgba(255,71,87,0.9);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    z-index: 2;
+}
+
+.adm-upload-remove:hover {
+    background: var(--error);
+    transform: scale(1.1);
+}
+
+.adm-current-img {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.adm-current-img img {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--card-border);
+}
+
+/* ── Form Actions ──────────────────────────────────────────── */
+.adm-form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 8px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.adm-form-actions .btn {
+    cursor: pointer;
+}
+
+/* ── Delete Confirm Button ─────────────────────────────────── */
+.adm-delete-confirm-btn {
+    background: linear-gradient(135deg, var(--error) 0%, #d63031 100%);
+    color: white;
+    border: none;
+    border-radius: var(--radius-btn);
+    padding: 14px 28px;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: 0 4px 18px rgba(255,71,87,0.3);
+}
+
+.adm-delete-confirm-btn:hover {
+    box-shadow: 0 6px 26px rgba(255,71,87,0.45);
+    transform: translateY(-1px);
+}
+
+/* ── Scrollbar for modal ───────────────────────────────────── */
+.adm-modal::-webkit-scrollbar {
+    width: 6px;
+}
+
+.adm-modal::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.adm-modal::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+}
+
+.adm-modal::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.15);
+}
+
+/* ── Admin Responsive ──────────────────────────────────────── */
+@media (max-width: 1024px) {
+    .adm-table-wrap {
+        overflow-x: auto;
+    }
+
+    .adm-table {
+        min-width: 800px;
+    }
+}
+
+@media (max-width: 768px) {
+    .adm-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .adm-toolbar-right {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .adm-filter-group {
+        justify-content: center;
+    }
+
+    .adm-add-btn {
+        text-align: center;
+    }
+
+    .adm-stats {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .adm-modal {
+        padding: 24px;
+        margin: 10px;
+    }
+
+    .adm-form-actions {
+        flex-direction: column;
+    }
+
+    .adm-form-actions .btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .adm-stats {
+        grid-template-columns: 1fr;
+    }
+}

@@ -28,3 +28,63 @@ CREATE TABLE IF NOT EXISTS contact_messages (
     message        TEXT           DEFAULT NULL,
     submitted_at   TIMESTAMP      DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Stores menu items (managed via admin panel)
+CREATE TABLE IF NOT EXISTS menu_items (
+    id          VARCHAR(20)    PRIMARY KEY,
+    category    VARCHAR(50)    NOT NULL,
+    name        VARCHAR(150)   NOT NULL,
+    description TEXT           NOT NULL,
+    price       DECIMAL(10,2)  NOT NULL,
+    badge       VARCHAR(30)    DEFAULT 'Veg',
+    image_path  VARCHAR(500)   DEFAULT NULL,
+    is_visible  TINYINT(1)     DEFAULT 1,
+    sort_order  INT            DEFAULT 0,
+    created_at  TIMESTAMP      DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ── Seed default menu items (only if table is empty) ──────────
+INSERT IGNORE INTO menu_items (id, category, name, description, price, badge, image_path, sort_order) VALUES
+('s1', 'Starters', 'Bruschetta',
+ 'Toasted sourdough topped with marinated cherry tomatoes, fresh basil, and a drizzle of aged balsamic.',
+ 280.00, 'Non-Veg', '../Image_Content/Bruschetta.jfif', 1),
+
+('s2', 'Starters', 'Creamy Mushroom Soup',
+ 'Velvety blend of wild forest mushrooms with truffle oil, cream, and fresh thyme croutons.',
+ 120.00, 'Veg', '../Image_Content/Soup.jfif', 2),
+
+('s3', 'Starters', 'Calamari Fritti',
+ 'Lightly dusted and fried squid rings served with house spicy marinara and lemon wedge.',
+ 350.00, 'Non-Veg', '../Image_Content/Calamari_fritti.jfif', 3),
+
+('m1', 'Mains', 'Grilled Salmon Fillet',
+ 'Atlantic salmon, herb-crusted, served on saffron risotto with asparagus and lemon beurre blanc.',
+ 520.00, 'Non-Veg', '../Image_Content/Grilled Salmon.jfif', 4),
+
+('m2', 'Mains', 'Spaghetti',
+ '220g prime-cut fillet, pan-seared with garlic butter, served with truffle fries and roasted veggies.',
+ 320.00, 'Veg', '../Image_Content/Spaghetti.jfif', 5),
+
+('m3', 'Mains', 'Wild Mushroom Pasta',
+ 'Fresh tagliatelle tossed with porcini, cremini, and shiitake mushrooms in a garlic white wine cream sauce.',
+ 175.00, 'Veg', '../Image_Content/Pasta.jfif', 6),
+
+('m4', 'Mains', 'Chicken Milanese',
+ 'Crispy breaded chicken breast served with arugula salad, shaved parmesan, and cherry tomatoes.',
+ 190.00, 'Non-Veg', '../Image_Content/Milanese.jfif', 7),
+
+('d1', 'Desserts', 'Classic Tiramisu',
+ 'Mascarpone cream layered with espresso-soaked ladyfingers, dusted with Valrhona cocoa.',
+ 150.00, 'Veg', '../Image_Content/tiramisu.jfif', 8),
+
+('d2', 'Desserts', 'Warm Chocolate Fondant',
+ 'Dark chocolate lava cake with a molten centre, served with vanilla bean ice cream.',
+ 105.00, 'Veg', '../Image_Content/warm chocolate.jfif', 9),
+
+('dr1', 'Drinks', 'Fresh Citrus Lemonade',
+ 'Hand-pressed lemons with mint, agave syrup, and sparkling water. Refreshingly vibrant.',
+ 50.00, 'Veg', '../Image_Content/lemonade.jfif', 10),
+
+('dr2', 'Drinks', 'Matcha Latte',
+ 'Premium ceremonial-grade matcha whisked with oat milk, served over ice with honey.',
+ 65.00, 'Veg', '../Image_Content/matcha.jfif', 11);
