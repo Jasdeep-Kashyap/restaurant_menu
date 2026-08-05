@@ -2,7 +2,9 @@
 /**
  * admin.php — Menu Item Management Panel
  */
-session_start();
+require_once '../includes/auth.php';
+auth_require(['admin']); // Admin-only page
+
 $page_title = 'Admin Panel — La Maison';
 $page_desc  = 'Manage your restaurant menu items.';
 
@@ -427,6 +429,14 @@ $filter_cat = $_GET['filter'] ?? 'all';
             <li><a href="orders.php">Orders</a></li>
             <li><a href="admin.php" class="active">Admin</a></li>
         </ul>
+        <div style="display:flex;align-items:center;gap:12px;">
+            <span style="font-size:.78rem;color:#e8a93c;font-weight:600;background:rgba(232,169,60,.1);border:1px solid rgba(232,169,60,.25);padding:5px 12px;border-radius:20px;" title="Logged in as <?= htmlspecialchars(auth_user()) ?>">
+                👤 <?= htmlspecialchars(auth_user()) ?>
+            </span>
+            <a href="logout.php" style="font-size:.78rem;color:#ff6b7a;font-weight:600;background:rgba(255,71,87,.08);border:1px solid rgba(255,71,87,.2);padding:5px 12px;border-radius:20px;text-decoration:none;transition:.2s;" onmouseover="this.style.background='rgba(255,71,87,.18)'" onmouseout="this.style.background='rgba(255,71,87,.08)'">
+                🚪 Logout
+            </a>
+        </div>
     </div>
 </nav>
 

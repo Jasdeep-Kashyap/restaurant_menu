@@ -1,7 +1,12 @@
 <?php
 // orders.php — Premium Order Dashboard
+require_once '../includes/auth.php';
+auth_require(['admin', 'viewer']); // Both roles may view orders
+
 $page_title = 'Order Dashboard — La Maison';
 $page_desc = 'Real-time order tracking dashboard for La Maison restaurant.';
+$_auth_role = auth_role();
+$_auth_user = auth_user();
 
 require_once '../includes/db.php';
 include '../includes/header.php';
@@ -51,7 +56,23 @@ $del_msg = $_GET['msg'] ?? '';
     </div>
 <?php endif; ?>
 
-<!-- ── Confirm-Delete Modal ───────────────────────────────────── -->
+<!-- ── Auth badge (floating, shown on all auth pages) ──────────── -->
+<div style="position:fixed;top:80px;right:20px;z-index:900;display:flex;gap:10px;align-items:center;">
+    <?php if ($_auth_role === 'viewer'): ?>
+    <span style="font-size:.72rem;color:#63b3ed;font-weight:600;background:rgba(99,179,237,.1);border:1px solid rgba(99,179,237,.25);padding:5px 12px;border-radius:20px;">
+        👁️ Viewer
+    </span>
+    <?php endif; ?>
+    <span style="font-size:.72rem;color:#e8a93c;font-weight:600;background:rgba(232,169,60,.1);border:1px solid rgba(232,169,60,.25);padding:5px 12px;border-radius:20px;">
+        👤 <?= htmlspecialchars($_auth_user) ?>
+    </span>
+    <a href="logout.php" style="font-size:.72rem;color:#ff6b7a;font-weight:600;background:rgba(255,71,87,.08);border:1px solid rgba(255,71,87,.2);padding:5px 12px;border-radius:20px;text-decoration:none;transition:.2s;" onmouseover="this.style.background='rgba(255,71,87,.18)'" onmouseout="this.style.background='rgba(255,71,87,.08)'">
+        🚪 Logout
+    </a>
+</div>
+
+<?php if ($_auth_role === 'admin'): ?>
+<!-- ── Confirm-Delete Modal (admin only) ─────────────────────────── -->
 <div class="od-modal-backdrop" id="od-modal-backdrop" aria-hidden="true">
     <div class="od-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
         <div class="od-modal-icon">🍽️</div>
@@ -66,6 +87,7 @@ $del_msg = $_GET['msg'] ?? '';
         </div>
     </div>
 </div>
+<?php endif; ?>
 
 <!-- ── Hero ─────────────────────────────────────────────────── -->
 <header class="hero page-hero od-hero">
@@ -162,12 +184,14 @@ $del_msg = $_GET['msg'] ?? '';
                         <div class="od-item-count"><?= count($items_arr) ?> item<?= count($items_arr) !== 1 ? 's' : '' ?></div>
                         <div class="od-card-footer-right">
                             <div class="od-price">₹<?= number_format((float) $order['total_price'], 2) ?></div>
+                            <?php if ($_auth_role === 'admin'): ?>
                             <button class="od-serve-btn" data-id="<?= (int) $order['id'] ?>"
                                 data-label="#<?= (int) $order['id'] ?> — <?= htmlspecialchars($order['customer_name']) ?>"
                                 aria-label="Mark order #<?= (int) $order['id'] ?> as served"
                                 title="Mark as served &amp; remove">
                                 Served?
                             </button>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
