@@ -88,3 +88,22 @@ INSERT IGNORE INTO menu_items (id, category, name, description, price, badge, im
 ('dr2', 'Drinks', 'Matcha Latte',
  'Premium ceremonial-grade matcha whisked with oat milk, served over ice with honey.',
  65.00, 'Veg', '../Image_Content/matcha.jfif', 11);
+
+-- ============================================================
+-- Migration: Order Processing Upgrade
+-- Adds cycling order numbers (1–500) and delivery scheduling.
+-- Safe to re-run (IF NOT EXISTS / IGNORE).
+-- ============================================================
+
+-- New columns on orders table
+ALTER TABLE orders
+    ADD COLUMN IF NOT EXISTS order_number  SMALLINT UNSIGNED NOT NULL DEFAULT 0 AFTER id,
+    ADD COLUMN IF NOT EXISTS scheduled_at  DATETIME DEFAULT NULL AFTER order_time,
+    ADD COLUMN IF NOT EXISTS utr_number    VARCHAR(50) DEFAULT NULL AFTER total_price;
+
+-- Single-row counter for cycling Order IDs (1–500)
+CREATE TABLE IF NOT EXISTS order_counter (
+    id          TINYINT UNSIGNED PRIMARY KEY DEFAULT 1,
+    next_number SMALLINT UNSIGNED NOT NULL DEFAULT 1
+);
+INSERT IGNORE INTO order_counter (id, next_number) VALUES (1, 1);

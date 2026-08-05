@@ -1,6 +1,6 @@
 <?php
-// process_order.php — Handles POST from the order form
-// Validates input, saves to DB, returns to menu with result flag.
+// process_order.php — Handles POST from the checkout flow
+// Validates UPI payment confirmation, scheduling, and assigns a cycling Order ID (1–500).
 
 session_start();
 require_once '../includes/db.php';
@@ -10,11 +10,33 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-/* ── Sanitise & validate ─────────────────────────────────── */
-$customer_name = trim($_POST['customer_name'] ?? '');
-$items_json    = trim($_POST['items_json']    ?? '');
-$total_price   = floatval($_POST['total_price'] ?? 0);
+/* ── Auto-migrate: add columns if missing (safe to re-run) ── */
+try {
+    $pdo->exec("
+        ALTER TABLE orders
+            ADD COLUMN IF NOT EXISTS order_number  SMALLINT UNSIGNED NOT NULL DEFAULT 0 AFTER id,
+            ADD COLUMN IF NOT EXISTS scheduled_at  DATETIME DEFAULT NULL AFTER order_time,
+            ADD COLUMN IF NOT EXISTS utr_number    VARCHAR(50) DEFAULT NULL AFTER total_price;
+        CREATE TABLE IF NOT EXISTS order_counter (
+            id          TINYINT UNSIGNED PRIMARY KEY DEFAULT 1,
+            next_number SMALLINT UNSIGNED NOT NULL DEFAULT 1
+        );
+        INSERT IGNORE INTO order_counter (id, next_number) VALUES (1, 1);
+    ");
+} catch (PDOException $e) {
+    // Columns likely already exist — safe to continue
+}
 
+/* ── Sanitise & validate ─────────────────────────────────── */
+$customer_name      = trim($_POST['customer_name'] ?? '');
+$items_json         = trim($_POST['items_json']    ?? '');
+$total_price        = floatval($_POST['total_price'] ?? 0);
+$payment_confirmed  = ($_POST['payment_confirmed'] ?? '') === '1';
+$utr_number         = trim($_POST['utr_number'] ?? '');
+$scheduled_date     = trim($_POST['scheduled_date'] ?? '');
+$scheduled_time     = trim($_POST['scheduled_time'] ?? '');
+
+// Basic field validation
 if ($customer_name === '' || $items_json === '' || $total_price <= 0) {
     header('Location: menu.php?status=error&msg=' . urlencode('Please fill all fields and add at least one item.'));
     exit;
@@ -27,22 +49,87 @@ if (!is_array($items_array) || count($items_array) === 0) {
     exit;
 }
 
-/* ── Save to database ────────────────────────────────────── */
+// Payment & UTR Verification
+if (!$payment_confirmed || $utr_number === '') {
+    header('Location: menu.php?status=error&msg=' . urlencode('Payment was not verified. Please provide a valid 12-digit UTR/Ref number.'));
+    exit;
+}
+
+// Validate UTR format (12 digits numeric or standard UPI reference format)
+if (!preg_match('/^[0-9A-Z]{8,16}$/i', $utr_number)) {
+    header('Location: menu.php?status=error&msg=' . urlencode('Invalid UTR/Transaction Reference ID. It must be 12 digits.'));
+    exit;
+}
+
+// Parse scheduled datetime (optional)
+$scheduled_at = null;
+if ($scheduled_date !== '' && $scheduled_time !== '') {
+    $dt_string = $scheduled_date . ' ' . $scheduled_time;
+    $dt = DateTime::createFromFormat('Y-m-d H:i', $dt_string);
+    if (!$dt) {
+        header('Location: menu.php?status=error&msg=' . urlencode('Invalid scheduled date or time format.'));
+        exit;
+    }
+    // Must be at least 15 minutes in the future
+    $now = new DateTime();
+    if ($dt <= $now) {
+        header('Location: menu.php?status=error&msg=' . urlencode('Scheduled time must be in the future.'));
+        exit;
+    }
+    $scheduled_at = $dt->format('Y-m-d H:i:s');
+} elseif ($scheduled_date !== '' || $scheduled_time !== '') {
+    // One is set but not the other
+    header('Location: menu.php?status=error&msg=' . urlencode('Please provide both date and time for scheduling.'));
+    exit;
+}
+
+/* ── Save to database with cycling Order ID ──────────────── */
 try {
+    $pdo->beginTransaction();
+
+    // Lock & read the counter
+    $counter_row = $pdo->query("SELECT next_number FROM order_counter WHERE id = 1 FOR UPDATE")->fetch();
+    $order_number = (int) ($counter_row['next_number'] ?? 1);
+
+    // Insert the order
     $stmt = $pdo->prepare(
-        "INSERT INTO orders (customer_name, items, total_price) VALUES (:name, :items, :total)"
+        "INSERT INTO orders (order_number, customer_name, items, total_price, utr_number, scheduled_at)
+         VALUES (:order_number, :name, :items, :total, :utr, :scheduled)"
     );
     $stmt->execute([
-        ':name'  => htmlspecialchars($customer_name, ENT_QUOTES, 'UTF-8'),
-        ':items' => $items_json,
-        ':total' => $total_price,
+        ':order_number' => $order_number,
+        ':name'         => htmlspecialchars($customer_name, ENT_QUOTES, 'UTF-8'),
+        ':items'        => $items_json,
+        ':total'        => $total_price,
+        ':utr'          => htmlspecialchars($utr_number, ENT_QUOTES, 'UTF-8'),
+        ':scheduled'    => $scheduled_at,
     ]);
+
+    // Increment counter, reset to 1 after 500
+    $next = ($order_number >= 500) ? 1 : $order_number + 1;
+    $pdo->prepare("UPDATE order_counter SET next_number = :next WHERE id = 1")
+        ->execute([':next' => $next]);
+
+    $pdo->commit();
 
     // Clear cart after successful order
     $_SESSION['cart'] = [];
 
-    header('Location: menu.php?status=success&msg=' . urlencode("Order placed for $customer_name! 🎉 We'll be right with you."));
+    // Build success redirect with order number
+    $msg = "Order #{$order_number} placed for {$customer_name}! 🎉";
+    if ($scheduled_at) {
+        $dt_display = (new DateTime($scheduled_at))->format('M j, g:i A');
+        $msg .= " Scheduled for {$dt_display}.";
+    } else {
+        $msg .= " We'll be right with you.";
+    }
+
+    header('Location: menu.php?status=success&msg=' . urlencode($msg) . '&order_id=' . $order_number);
+
 } catch (PDOException $e) {
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
     header('Location: menu.php?status=error&msg=' . urlencode('Database error: ' . $e->getMessage()));
 }
 

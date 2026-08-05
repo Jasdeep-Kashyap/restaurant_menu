@@ -12,7 +12,7 @@ require_once '../includes/db.php';
 include '../includes/header.php';
 
 $orders = $pdo->query(
-    "SELECT id, customer_name, items, total_price, order_time FROM orders ORDER BY order_time DESC"
+    "SELECT id, order_number, customer_name, items, total_price, order_time, scheduled_at, utr_number FROM orders ORDER BY order_time DESC"
 )->fetchAll();
 
 // ── Compute stats ──────────────────────────────────────────────
@@ -143,6 +143,10 @@ $del_msg = $_GET['msg'] ?? '';
                 $date_fmt = $dt->format('M j, Y');
                 $time_fmt = $dt->format('g:i A');
                 $items_searchable = implode(' ', $items_arr);
+                $o_num = (int) ($order['order_number'] ?? 0);
+                $sched = $order['scheduled_at'] ?? null;
+                $sched_fmt = $sched ? (new DateTime($sched))->format('M j, g:i A') : '';
+                $utr_num = $order['utr_number'] ?? '';
                 ?>
                 <div class="od-card" style="--delay:<?= min($i * 0.06, 0.6) ?>s"
                     data-name="<?= htmlspecialchars(strtolower($order['customer_name'])) ?>"
@@ -156,12 +160,23 @@ $del_msg = $_GET['msg'] ?? '';
                             <?= mb_strtoupper(mb_substr($order['customer_name'], 0, 1)) ?>
                         </div>
                         <div class="od-card-info">
-                            <div class="od-customer-name"><?= htmlspecialchars($order['customer_name']) ?></div>
+                            <div class="od-customer-name">
+                                <?= htmlspecialchars($order['customer_name']) ?>
+                                <?php if ($o_num > 0): ?>
+                                    <span style="display:inline-block;font-size:.68rem;font-weight:700;color:#e8a93c;background:rgba(232,169,60,.12);border:1px solid rgba(232,169,60,.2);border-radius:6px;padding:2px 8px;margin-left:6px;vertical-align:middle;letter-spacing:.3px;">Order #<?= $o_num ?></span>
+                                <?php endif; ?>
+                            </div>
                             <div class="od-datetime">
                                 <span class="od-date"><?= $date_fmt ?></span>
                                 <span class="od-time-dot">·</span>
                                 <span class="od-time"><?= $time_fmt ?></span>
                             </div>
+                            <?php if ($utr_num): ?>
+                            <div style="font-size:.74rem;color:#2ed573;margin-top:3px;font-weight:500;">💳 UTR: <code style="font-family:monospace;background:rgba(46,213,115,.1);padding:1px 5px;border-radius:4px;"><?= htmlspecialchars($utr_num) ?></code></div>
+                            <?php endif; ?>
+                            <?php if ($sched): ?>
+                            <div style="font-size:.74rem;color:#63b3ed;margin-top:3px;">📅 Scheduled: <?= htmlspecialchars($sched_fmt) ?></div>
+                            <?php endif; ?>
                         </div>
 
                     </div>
