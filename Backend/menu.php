@@ -77,13 +77,13 @@ $menu_raw = $pdo->query(
 // Map DB column names to template keys
 $menu = array_map(function ($row) {
     return [
-        'id'       => $row['id'],
+        'id' => $row['id'],
         'category' => $row['category'],
-        'name'     => $row['name'],
-        'desc'     => $row['description'],
-        'price'    => (float) $row['price'],
-        'badge'    => $row['badge'],
-        'img'      => $row['image_path'],
+        'name' => $row['name'],
+        'desc' => $row['description'],
+        'price' => (float) $row['price'],
+        'badge' => $row['badge'],
+        'img' => $row['image_path'],
     ];
 }, $menu_raw);
 
@@ -208,17 +208,20 @@ include '../includes/header.php';
     </div>
 </main>
 
-<!-- ── Cart Summary Panel (shown when items exist) ────────── -->
+<!-- ── Cart Pill + Drawer (shown when items exist) ─────────── -->
 <?php if ($cart_count > 0): ?>
-    <div class="cart-summary">
-        <div class="cart-summary-inner">
-            <div class="cart-info">
-                <span class="cart-count-badge"><?= $cart_count ?></span>
-                <span class="cart-label">Your Order</span>
-                <span class="cart-total">₹<?= number_format($cart_total, 2) ?></span>
-            </div>
+    <input type="checkbox" id="cartToggle">
+    <div class="cart-pill-wrap">
 
-            <div class="cart-details">
+        <!-- Drawer (above the pill) -->
+        <div class="cart-drawer">
+            <div class="cart-drawer-inner">
+                <div class="cart-info">
+                    <span class="cart-count-badge"><?= $cart_count ?></span>
+                    <span class="cart-label">Your Order</span>
+                    <span class="cart-total">₹<?= number_format($cart_total, 2) ?></span>
+                </div>
+
                 <ul class="cart-items-list">
                     <?php foreach ($cart as $ci): ?>
                         <li>
@@ -247,6 +250,14 @@ include '../includes/header.php';
                 </form>
             </div>
         </div>
+
+        <!-- Pill toggle button -->
+        <label for="cartToggle" class="cart-pill" id="cartPill" aria-label="Toggle cart">
+            <span> Items in Cart</span>
+            <span class="pill-count"><?= $cart_count ?></span>
+            <span class="pill-chevron">▲</span>
+        </label>
+
     </div>
 <?php endif; ?>
 

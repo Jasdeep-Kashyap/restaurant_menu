@@ -991,45 +991,131 @@ img { max-width: 100%; display: block; }
 
 
 /* ═══════════════════════════════════════════════════════════════
-   MENU PAGE — CART SUMMARY PANEL
+   MENU PAGE — CART PILL + DRAWER
    ═══════════════════════════════════════════════════════════════ */
 
-.cart-summary {
+/* Hidden checkbox toggle */
+#cartToggle {
+    display: none;
+}
+
+/* ── Floating pill wrapper ─────────────────────────────────── */
+.cart-pill-wrap {
     position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 100;
-    width: min(560px, calc(100vw - 40px));
+    bottom: 28px;
+    right: 28px;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
 }
 
-.cart-summary-inner {
-    background: rgba(19,22,27,0.92);
+/* ── The pill label (acts as toggle button) ────────────────── */
+.cart-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+    color: #0c0e11;
+    padding: 12px 20px 12px 14px;
+    border-radius: 50px;
+    cursor: pointer;
+    user-select: none;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.3px;
+    box-shadow: 0 6px 28px rgba(232,169,60,0.45), 0 2px 8px rgba(0,0,0,0.4);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    white-space: nowrap;
+}
+
+.cart-pill:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 36px rgba(232,169,60,0.55), 0 4px 12px rgba(0,0,0,0.5);
+}
+
+.cart-pill:active { transform: scale(0.97); }
+
+.pill-icon {
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+.pill-count {
+    background: #0c0e11;
+    color: var(--gold);
+    font-size: 0.75rem;
+    font-weight: 800;
+    min-width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 2px;
+}
+
+.pill-chevron {
+    font-size: 0.7rem;
+    opacity: 0.7;
+    transition: transform 0.3s ease;
+    margin-left: 2px;
+}
+
+/* ── Cart drawer (hidden by default) ──────────────────────── */
+.cart-drawer {
+    background: rgba(19,22,27,0.96);
     border: 1px solid rgba(232,169,60,0.25);
-    border-radius: 16px;
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
+    border-radius: 18px;
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    box-shadow: 0 24px 64px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04);
+    width: min(360px, calc(100vw - 56px));
+    max-height: 0;
     overflow: hidden;
-    padding: 20px 24px;
+    transition: max-height 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.28s ease,
+                transform 0.28s ease;
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
 }
 
+/* ── Open state ───────────────────────────────────────────── */
+#cartToggle:checked ~ .cart-pill-wrap .cart-drawer {
+    max-height: 600px;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+#cartToggle:checked ~ .cart-pill-wrap .cart-pill .pill-chevron {
+    transform: rotate(180deg);
+}
+
+.cart-drawer-inner {
+    padding: 20px 20px 16px;
+}
+
+/* ── Cart header row inside drawer ────────────────────────── */
 .cart-info {
     display: flex;
     align-items: center;
-    gap: 14px;
-    margin-bottom: 16px;
-    padding-bottom: 14px;
+    gap: 10px;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
     border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
 .cart-count-badge {
     background: var(--gold);
     color: #0c0e11;
-    font-size: 0.8rem;
-    font-weight: 700;
-    min-width: 28px;
-    height: 28px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    min-width: 26px;
+    height: 26px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -1038,29 +1124,34 @@ img { max-width: 100%; display: block; }
 
 .cart-label {
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.95rem;
     flex: 1;
 }
 
 .cart-total {
-    font-size: 1.15rem;
+    font-size: 1.05rem;
     font-weight: 700;
     color: var(--gold);
 }
 
+/* ── Items list ───────────────────────────────────────────── */
 .cart-items-list {
     list-style: none;
-    margin: 0 0 16px;
+    margin: 0 0 14px;
+    max-height: 180px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(232,169,60,0.3) transparent;
 }
 
 .cart-items-list li {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 7px 0;
+    padding: 6px 0;
     border-bottom: 1px solid rgba(255,255,255,0.04);
-    font-size: 0.9rem;
-    gap: 10px;
+    font-size: 0.88rem;
+    gap: 8px;
 }
 
 .cart-items-list li:last-child { border-bottom: none; }
@@ -1072,8 +1163,8 @@ img { max-width: 100%; display: block; }
 
 .cart-item-qty {
     color: var(--muted);
-    font-size: 0.85rem;
-    min-width: 30px;
+    font-size: 0.82rem;
+    min-width: 28px;
     text-align: center;
 }
 
@@ -1081,7 +1172,7 @@ img { max-width: 100%; display: block; }
     color: var(--gold);
     font-weight: 600;
     white-space: nowrap;
-    min-width: 65px;
+    min-width: 60px;
     text-align: right;
 }
 
@@ -1100,8 +1191,8 @@ img { max-width: 100%; display: block; }
     border-radius: 8px;
     color: var(--text);
     font-family: var(--font-body);
-    font-size: 0.95rem;
-    padding: 12px 16px;
+    font-size: 0.9rem;
+    padding: 11px 14px;
     outline: none;
     width: 100%;
     transition: border-color 0.2s;
@@ -1115,9 +1206,9 @@ img { max-width: 100%; display: block; }
     color: #0c0e11;
     border: none;
     border-radius: var(--radius-btn);
-    padding: 14px;
+    padding: 13px;
     font-family: var(--font-body);
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 700;
     cursor: pointer;
     letter-spacing: 0.5px;
@@ -1143,9 +1234,9 @@ img { max-width: 100%; display: block; }
     border-radius: var(--radius-btn);
     color: var(--error);
     font-family: var(--font-body);
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     font-weight: 500;
-    padding: 10px;
+    padding: 9px;
     cursor: pointer;
     transition: var(--transition);
     opacity: 0.7;
@@ -1624,7 +1715,7 @@ tbody td:first-child { color: var(--text); font-weight: 500; }
 
     .footer-inner { grid-template-columns: 1fr; gap: 28px; }
 
-    .cart-summary { bottom: 12px; }
+    .cart-pill-wrap { bottom: 16px; right: 16px; }
 
     .contact-form-wrap { padding: 28px 20px; }
 
