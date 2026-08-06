@@ -1002,13 +1002,13 @@ img { max-width: 100%; display: block; }
 /* ── Floating pill wrapper ─────────────────────────────────── */
 .cart-pill-wrap {
     position: fixed;
-    bottom: 28px;
-    right: 28px;
-    z-index: 200;
+    bottom: 24px;
+    right: 24px;
+    z-index: 999999;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 12px;
+    gap: 14px;
 }
 
 /* ── The pill label (acts as toggle button) ────────────────── */
@@ -1018,7 +1018,7 @@ img { max-width: 100%; display: block; }
     gap: 10px;
     background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
     color: #0c0e11;
-    padding: 12px 20px 12px 14px;
+    padding: 12px 20px 12px 16px;
     border-radius: 50px;
     cursor: pointer;
     user-select: none;
@@ -1026,14 +1026,14 @@ img { max-width: 100%; display: block; }
     font-weight: 700;
     font-size: 0.95rem;
     letter-spacing: 0.3px;
-    box-shadow: 0 6px 28px rgba(232,169,60,0.45), 0 2px 8px rgba(0,0,0,0.4);
+    box-shadow: 0 6px 28px rgba(232,169,60,0.5), 0 2px 8px rgba(0,0,0,0.4);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     white-space: nowrap;
 }
 
 .cart-pill:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 36px rgba(232,169,60,0.55), 0 4px 12px rgba(0,0,0,0.5);
+    box-shadow: 0 10px 36px rgba(232,169,60,0.65), 0 4px 12px rgba(0,0,0,0.5);
 }
 
 .cart-pill:active { transform: scale(0.97); }
@@ -1066,13 +1066,11 @@ img { max-width: 100%; display: block; }
 
 /* ── Cart drawer (hidden by default) ──────────────────────── */
 .cart-drawer {
-    background: rgba(19,22,27,0.96);
-    border: 1px solid rgba(232,169,60,0.25);
+    background: #14161f;
+    border: 1px solid rgba(232,169,60,0.4);
     border-radius: 18px;
-    backdrop-filter: blur(28px);
-    -webkit-backdrop-filter: blur(28px);
-    box-shadow: 0 24px 64px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04);
-    width: min(360px, calc(100vw - 56px));
+    box-shadow: 0 24px 64px rgba(0,0,0,0.95), 0 0 0 1px rgba(255,255,255,0.06);
+    width: min(390px, calc(100vw - 32px));
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.38s cubic-bezier(0.4, 0, 0.2, 1),
@@ -1081,14 +1079,16 @@ img { max-width: 100%; display: block; }
     opacity: 0;
     transform: translateY(10px);
     pointer-events: none;
+    margin-bottom: 14px;
 }
 
 /* ── Open state ───────────────────────────────────────────── */
 #cartToggle:checked ~ .cart-pill-wrap .cart-drawer {
-    max-height: 600px;
+    max-height: calc(88vh - 70px);
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
+    overflow-y: auto;
 }
 
 #cartToggle:checked ~ .cart-pill-wrap .cart-pill .pill-chevron {

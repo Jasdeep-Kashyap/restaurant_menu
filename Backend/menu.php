@@ -1,5 +1,9 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    @ini_set('session.cookie_lifetime', 86400);
+    @ini_set('session.gc_maxlifetime', 86400);
+    session_start();
+}
 
 $page_title = 'Our Menu — La Maison';
 $page_desc = 'Browse La Maison\'s curated fine-dining menu — starters, mains, desserts, and drinks. Order online.';
@@ -360,22 +364,55 @@ include '../includes/header.php';
 
 <!-- ── Checkout Inline Styles ──────────────────────────────── -->
 <style>
-    /* ── Cart Drawer Size & Scroll Override ─────────────────── */
+    /* ── Cart Drawer Solid Background & Sizing ─────────────── */
+    .cart-pill-wrap {
+        position: fixed !important;
+        bottom: 24px !important;
+        right: 24px !important;
+        z-index: 999999 !important;
+    }
     .cart-drawer {
-        width: min(450px, calc(100vw - 32px)) !important;
+        width: min(390px, calc(100vw - 32px)) !important;
+        background: #14161f !important; /* 100% Opaque Solid Dark — no bleed through */
+        border: 1px solid rgba(232, 169, 60, 0.4) !important;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
+        margin-bottom: 14px !important;
     }
     #cartToggle:checked ~ .cart-pill-wrap .cart-drawer {
         max-height: calc(88vh - 70px) !important;
         overflow-y: auto !important;
         scrollbar-width: thin;
-        scrollbar-color: rgba(232,169,60,0.35) transparent;
+        scrollbar-color: rgba(232, 169, 60, 0.4) transparent;
     }
     .cart-drawer::-webkit-scrollbar {
         width: 6px;
     }
     .cart-drawer::-webkit-scrollbar-thumb {
-        background: rgba(232,169,60,0.35);
+        background: rgba(232, 169, 60, 0.4);
         border-radius: 3px;
+    }
+
+    /* ── Form Inputs Solid Styling ─────────────────────────── */
+    .order-input {
+        background: #1d212c !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        color: #e2e6f0 !important;
+        font-weight: 500 !important;
+    }
+    .order-input::placeholder {
+        color: #717786 !important;
+    }
+    .ck-input {
+        background: #1d212c !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        color: #e2e6f0 !important;
+    }
+    .ck-upi-card {
+        background: #181b24 !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+    .ck-app-tabs {
+        background: #101218 !important;
     }
 
     /* ── Schedule Section ──────────────────────────────────── */

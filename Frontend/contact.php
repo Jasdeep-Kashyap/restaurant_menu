@@ -23,12 +23,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['contact_submit'])) {
                  VALUES (:name, :email, :phone, :guests, :preferred_date, :message)"
             );
             $stmt->execute([
-                ':name'           => $name,
-                ':email'          => $email,
-                ':phone'          => $phone ?: null,
-                ':guests'         => $guests > 0 ? $guests : null,
+                ':name' => $name,
+                ':email' => $email,
+                ':phone' => $phone ?: null,
+                ':guests' => $guests > 0 ? $guests : null,
                 ':preferred_date' => $date ?: null,
-                ':message'        => $msg ?: null,
+                ':message' => $msg ?: null,
             ]);
             $form_sent = true;
         } catch (PDOException $e) {
@@ -65,7 +65,7 @@ include '../includes/header.php';
             <div class="contact-info-card">
                 <div class="contact-icon">📞</div>
                 <h3>Call Us</h3>
-                <p>+91 90994-34638</p>
+                <p>+91 90994-XXXXX</p>
             </div>
             <div class="contact-info-card">
                 <div class="contact-icon">✉️</div>
