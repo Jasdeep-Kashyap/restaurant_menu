@@ -10,21 +10,35 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-/* ── Auto-migrate: add columns if missing (safe to re-run) ── */
+/* ── Safe Auto-migrate schema ── */
 try {
+    // 1. Create order_counter table if it does not exist
     $pdo->exec("
-        ALTER TABLE orders
-            ADD COLUMN IF NOT EXISTS order_number  SMALLINT UNSIGNED NOT NULL DEFAULT 0 AFTER id,
-            ADD COLUMN IF NOT EXISTS scheduled_at  DATETIME DEFAULT NULL AFTER order_time,
-            ADD COLUMN IF NOT EXISTS utr_number    VARCHAR(50) DEFAULT NULL AFTER total_price;
         CREATE TABLE IF NOT EXISTS order_counter (
             id          TINYINT UNSIGNED PRIMARY KEY DEFAULT 1,
             next_number SMALLINT UNSIGNED NOT NULL DEFAULT 1
-        );
-        INSERT IGNORE INTO order_counter (id, next_number) VALUES (1, 1);
+        )
     ");
+    $pdo->exec("INSERT IGNORE INTO order_counter (id, next_number) VALUES (1, 1)");
+
+    // 2. Add columns to orders table individually if missing (compatible with all MySQL versions)
+    $existing_cols = [];
+    $stmt = $pdo->query("SHOW COLUMNS FROM orders");
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $existing_cols[] = strtolower($row['Field']);
+    }
+
+    if (!in_array('order_number', $existing_cols)) {
+        $pdo->exec("ALTER TABLE orders ADD COLUMN order_number SMALLINT UNSIGNED NOT NULL DEFAULT 0 AFTER id");
+    }
+    if (!in_array('scheduled_at', $existing_cols)) {
+        $pdo->exec("ALTER TABLE orders ADD COLUMN scheduled_at DATETIME DEFAULT NULL AFTER order_time");
+    }
+    if (!in_array('utr_number', $existing_cols)) {
+        $pdo->exec("ALTER TABLE orders ADD COLUMN utr_number VARCHAR(50) DEFAULT NULL AFTER total_price");
+    }
 } catch (PDOException $e) {
-    // Columns likely already exist — safe to continue
+    // Safe failsafe
 }
 
 /* ── Sanitise & validate ─────────────────────────────────── */
@@ -32,7 +46,8 @@ $customer_name      = trim($_POST['customer_name'] ?? '');
 $items_json         = trim($_POST['items_json']    ?? '');
 $total_price        = floatval($_POST['total_price'] ?? 0);
 $payment_confirmed  = ($_POST['payment_confirmed'] ?? '') === '1';
-$utr_number         = trim($_POST['utr_number'] ?? '');
+$utr_raw            = trim($_POST['utr_number'] ?? '');
+$utr_number         = strtoupper(preg_replace('/[^0-9A-Z]/i', '', $utr_raw));
 $scheduled_date     = trim($_POST['scheduled_date'] ?? '');
 $scheduled_time     = trim($_POST['scheduled_time'] ?? '');
 
@@ -57,7 +72,7 @@ if (!$payment_confirmed || $utr_number === '') {
 
 // Validate UTR format (12 digits numeric or standard UPI reference format)
 if (!preg_match('/^[0-9A-Z]{8,16}$/i', $utr_number)) {
-    header('Location: menu.php?status=error&msg=' . urlencode('Invalid UTR/Transaction Reference ID. It must be 12 digits.'));
+    header('Location: menu.php?status=error&msg=' . urlencode('Invalid UTR/Transaction Reference ID. It must be 8-16 alphanumeric characters.'));
     exit;
 }
 
@@ -65,18 +80,18 @@ if (!preg_match('/^[0-9A-Z]{8,16}$/i', $utr_number)) {
 $scheduled_at = null;
 if ($scheduled_date !== '' && $scheduled_time !== '') {
     $dt_string = $scheduled_date . ' ' . $scheduled_time;
-    $dt = DateTime::createFromFormat('Y-m-d H:i', $dt_string);
-    if (!$dt) {
+    try {
+        $dt = new DateTime($dt_string);
+        $now = new DateTime();
+        if ($dt <= $now) {
+            header('Location: menu.php?status=error&msg=' . urlencode('Scheduled time must be in the future.'));
+            exit;
+        }
+        $scheduled_at = $dt->format('Y-m-d H:i:s');
+    } catch (Exception $e) {
         header('Location: menu.php?status=error&msg=' . urlencode('Invalid scheduled date or time format.'));
         exit;
     }
-    // Must be at least 15 minutes in the future
-    $now = new DateTime();
-    if ($dt <= $now) {
-        header('Location: menu.php?status=error&msg=' . urlencode('Scheduled time must be in the future.'));
-        exit;
-    }
-    $scheduled_at = $dt->format('Y-m-d H:i:s');
 } elseif ($scheduled_date !== '' || $scheduled_time !== '') {
     // One is set but not the other
     header('Location: menu.php?status=error&msg=' . urlencode('Please provide both date and time for scheduling.'));

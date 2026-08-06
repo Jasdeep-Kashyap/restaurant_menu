@@ -267,16 +267,16 @@ include '../includes/header.php';
                         </div>
 
                         <button type="button" class="submit-btn" id="btnToPayment">
-                            Proceed to UPI Payment →
+                            Proceed to Cashfree Payment →
                         </button>
                     </div>
 
-                    <!-- ── STEP 2: Interactive UPI Payment Gateway ─── -->
+                    <!-- ── STEP 2: Cashfree Payment Gateway ─── -->
                     <div id="checkoutStep2" style="display:none;">
                         <div class="ck-upi-card">
                             <div class="ck-upi-header">
                                 <span class="ck-upi-icon">💳</span>
-                                <span class="ck-upi-title">UPI Payment Gateway</span>
+                                <span class="ck-upi-title">Cashfree Payment Gateway</span>
                             </div>
 
                             <div class="ck-upi-body">
@@ -285,60 +285,31 @@ include '../includes/header.php';
                                     <span class="ck-upi-amount">₹<?= number_format($cart_total, 2) ?></span>
                                 </div>
 
-                                <!-- App Selector Tabs -->
-                                <div class="ck-app-tabs">
-                                    <button type="button" class="ck-app-tab active" data-app="qr">QR Code</button>
-                                    <button type="button" class="ck-app-tab" data-app="gpay">GPay</button>
-                                    <button type="button" class="ck-app-tab" data-app="phonepe">PhonePe</button>
-                                    <button type="button" class="ck-app-tab" data-app="paytm">Paytm</button>
-                                </div>
+                                <!-- Cashfree PG Display Area -->
+                                <div class="ck-cashfree-box" id="cashfreeBox" style="padding:6px 0;text-align:left;">
+                                    <div style="background:rgba(232,169,60,0.08);border:1px solid rgba(232,169,60,0.25);border-radius:12px;padding:14px;color:#e0e6ed;font-size:0.82rem;">
+                                        <div style="font-weight:700;color:#e8a93c;margin-bottom:6px;display:flex;align-items:center;gap:6px;font-size:0.92rem;">
+                                            <span>⚡ Secure Cashfree Checkout</span>
+                                        </div>
+                                        <p style="margin:0 0 10px 0;line-height:1.4;color:#a0aec0;font-size:0.78rem;">Pay seamlessly via Cashfree supporting UPI, Cards, NetBanking, Wallets & PayLater.</p>
+                                        
+                                        <div style="font-size:0.72rem;color:#e8a93c;margin-bottom:6px;font-weight:600;">SANDBOX TEST PRESETS:</div>
+                                        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px;">
+                                            <button type="button" class="cf-chip-btn" data-vpa="testsuccess@gocash">UPI: testsuccess@gocash</button>
+                                            <button type="button" class="cf-chip-btn" data-vpa="4706131211212123">Card: 4706...123</button>
+                                            <button type="button" class="cf-chip-btn" data-vpa="3333">Bank Code: 3333</button>
+                                        </div>
 
-                                <!-- QR Display Area -->
-                                <div class="ck-qr-box" id="qrBox">
-                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=<?= urlencode('upi://pay?pa=jskkashyap1910@oksbi&pn=La%20Maison&am=' . number_format($cart_total, 2, '.', '') . '&cu=INR') ?>" 
-                                         alt="UPI QR Code" class="ck-qr-img" width="160" height="160">
-                                    <div class="ck-upi-vpa">VPA: <strong>jskkashyap1910@oksbi</strong></div>
-                                </div>
-
-                                <!-- App Intent Button Area (shown when app tab selected) -->
-                                <div class="ck-app-intent-box" id="appBox" style="display:none;">
-                                    <p class="ck-intent-desc" id="appIntentDesc">Open app to pay ₹<?= number_format($cart_total, 2) ?></p>
-                                    <a href="upi://pay?pa=jskkashyap1910@oksbi&pn=La%20Maison&am=<?= number_format($cart_total, 2, '.', '') ?>&cu=INR" 
-                                       class="ck-intent-btn" id="appIntentBtn" target="_blank">
-                                        Open UPI App 🚀
-                                    </a>
-                                </div>
-
-                                <!-- Verification Method: UTR / Reference ID -->
-                                <div class="ck-verify-section">
-                                    <label for="utrInput" class="ck-verify-label">
-                                        <span>Authentication / UTR Verification</span>
-                                        <span class="ck-req">*Required</span>
-                                    </label>
-                                    <div class="ck-utr-wrap">
-                                        <input type="text" class="ck-input ck-utr-input" id="utrInput" 
-                                               placeholder="Enter 12-digit UTR / Ref No." 
-                                               maxlength="16" autocomplete="off">
-                                        <button type="button" class="ck-auto-utr-btn" id="btnAutoUtr" title="Generate test UTR for instant demo">
-                                            Demo UTR
+                                        <button type="button" id="btnPayCashfree" style="width:100%;padding:12px;background:linear-gradient(135deg,#e8a93c,#d48817);border:none;border-radius:10px;color:#121418;font-weight:700;cursor:pointer;font-size:0.95rem;transition:.2s;box-shadow:0 4px 16px rgba(232,169,60,.25);">
+                                            Proceed to Cashfree Payment 🚀
                                         </button>
                                     </div>
-                                    <div class="ck-utr-hint">Find the 12-digit UTR / Ref ID in your GPay / PhonePe / Paytm transaction receipt.</div>
-                                </div>
-
-                                <!-- Bank Verification Loader -->
-                                <div class="ck-bank-status" id="bankStatus" style="display:none;">
-                                    <div class="ck-spinner" id="bankSpinner"></div>
-                                    <span id="bankStatusMsg">Connecting to Bank Gateway…</span>
                                 </div>
                             </div>
 
                             <div class="ck-upi-schedule-note" id="upiSchedNote" style="display:none;"></div>
                         </div>
 
-                        <button type="button" class="submit-btn ck-btn-confirm" id="btnConfirmPayment">
-                            Verify & Submit Order ✓
-                        </button>
                         <button type="button" class="ck-btn-back" id="btnBackToStep1">
                             ← Back to Details
                         </button>
@@ -552,16 +523,19 @@ include '../includes/header.php';
         box-shadow: 0 4px 16px rgba(46,213,115,.2) !important;
     }
     .ck-btn-confirm:hover { box-shadow: 0 6px 24px rgba(46,213,115,.35) !important; }
-    .ck-btn-back {
-        width: 100%; padding: 10px; background: none; border: 1px solid rgba(255,255,255,.1);
-        border-radius: 10px; margin-top: 8px; color: #adb5bd; font-family: 'Outfit', sans-serif;
-        font-size: .84rem; font-weight: 500; cursor: pointer; transition: .2s;
+    .cf-chip-btn {
+        background: rgba(232,169,60,0.12); border: 1px solid rgba(232,169,60,0.3);
+        border-radius: 6px; color: #e8a93c; font-size: 0.7rem; padding: 3px 8px;
+        font-family: 'Outfit', sans-serif; cursor: pointer; transition: .2s;
     }
-    .ck-btn-back:hover { border-color: rgba(232,169,60,.35); color: #e8a93c; }
+    .cf-chip-btn:hover { background: rgba(232,169,60,0.25); color: #fff; }
 
     @keyframes ckShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
     .ck-shake { animation: ckShake .3s ease; }
 </style>
+
+<!-- ── Cashfree SDK v3 ─────────────────────────────────────── -->
+<script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
 
 <!-- ── Checkout JS ─────────────────────────────────────────── -->
 <script>
@@ -595,31 +569,86 @@ include '../includes/header.php';
     const appBox          = document.getElementById('appBox');
     const appIntentDesc   = document.getElementById('appIntentDesc');
 
-    let scheduling = false;
+    const cashfreeBox     = document.getElementById('cashfreeBox');
+    const btnPayCashfree  = document.getElementById('btnPayCashfree');
+    const cfChips         = document.querySelectorAll('.cf-chip-btn');
 
-    // App Tab Switching
-    appTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            appTabs.forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            const app = tab.dataset.app;
-            if (app === 'qr') {
-                qrBox.style.display = 'inline-block';
-                appBox.style.display = 'none';
-            } else {
-                qrBox.style.display = 'none';
-                appBox.style.display = 'block';
-                const appNames = { gpay: 'Google Pay', phonepe: 'PhonePe', paytm: 'Paytm' };
-                appIntentDesc.textContent = `Pay directly using ${appNames[app] || 'UPI App'}`;
+    cfChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            if (utrInput) {
+                utrInput.value = chip.dataset.vpa;
+                utrInput.style.borderColor = '#e8a93c';
             }
         });
     });
 
-    // Auto-generate realistic UTR for demo testing
-    btnAutoUtr.addEventListener('click', () => {
-        const randomUtr = '9876' + Math.floor(10000000 + Math.random() * 90000000);
-        utrInput.value = randomUtr;
-        utrInput.style.borderColor = '#2ed573';
+    let scheduling = false;
+
+    if (btnPayCashfree) {
+        btnPayCashfree.addEventListener('click', function() {
+            const nameVal = custName ? custName.value.trim() : '';
+            if (!nameVal) {
+                step2.style.display = 'none';
+                step1.style.display = 'block';
+                custName.focus();
+                custName.classList.add('ck-shake');
+                setTimeout(() => custName.classList.remove('ck-shake'), 350);
+                return;
+            }
+
+            btnPayCashfree.disabled = true;
+            btnPayCashfree.textContent = 'Connecting Cashfree Gateway…';
+
+            const payload = {
+                customer_name: nameVal,
+                total_price: <?= number_format($cart_total, 2, '.', '') ?>,
+                items_json: document.querySelector('input[name="items_json"]').value,
+                scheduled_date: hiddenDate ? hiddenDate.value : '',
+                scheduled_time: hiddenTime ? hiddenTime.value : ''
+            };
+
+            fetch('create_cashfree_order.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                btnPayCashfree.disabled = false;
+                btnPayCashfree.textContent = 'Proceed to Cashfree Payment 🚀';
+
+                if (data.success) {
+                    if (typeof Cashfree !== 'undefined' && data.payment_session_id && !data.payment_session_id.startsWith('session_mock_')) {
+                        const cfMode = (data.environment === 'production') ? 'production' : 'sandbox';
+                        const cashfree = Cashfree({ mode: cfMode });
+                        cashfree.checkout({
+                            paymentSessionId: data.payment_session_id,
+                            redirectTarget: "_self"
+                        });
+                    } else {
+                        // Sandbox Demo Mode: redirect directly to cashfree_return.php
+                        window.location.href = 'cashfree_return.php?order_id=' + encodeURIComponent(data.cf_order_id);
+                    }
+                } else {
+                    alert('Cashfree Order Creation Failed: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(err => {
+                btnPayCashfree.disabled = false;
+                btnPayCashfree.textContent = 'Proceed to Cashfree Payment 🚀';
+                alert('Error connecting to Cashfree checkout server.');
+            });
+        });
+    }
+
+    // Prevent direct HTML form submission on ENTER key
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (step1.style.display !== 'none') {
+            btnToPayment.click();
+        } else if (step2.style.display !== 'none' && btnPayCashfree) {
+            btnPayCashfree.click();
+        }
     });
 
     // Set date picker bounds (today → +7 days)

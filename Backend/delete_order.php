@@ -1,6 +1,8 @@
 <?php
 // delete_order.php — Handles POST request to remove a served order from DB
 
+require_once '../includes/auth.php';
+auth_require(['admin']);
 require_once '../includes/db.php';//Connects to database
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

@@ -6,7 +6,8 @@
  * Supported actions: toggle_visibility, update_item, add_item, delete_item
  */
 
-session_start();
+require_once '../includes/auth.php';
+auth_require(['admin']);
 require_once '../includes/db.php';
 
 // Only accept POST requests

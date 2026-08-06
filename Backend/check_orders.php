@@ -1,6 +1,8 @@
 <?php
 // check_orders.php - API endpoint to get the latest order state
 
+require_once '../includes/auth.php';
+auth_require(['admin', 'viewer']);
 require_once '../includes/db.php';//Connects to database
 
 header('Content-Type: application/json');//Sends data to frontend in specifiedd data type  
