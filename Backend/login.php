@@ -13,36 +13,44 @@ if (!empty($_SESSION['auth_user'])) {
     exit;
 }
 
-$error      = '';
-$logged_out = isset($_GET['logged_out']);
-$return_url = htmlspecialchars($_GET['return'] ?? '', ENT_QUOTES, 'UTF-8');
+$error        = '';
+$locked_secs  = 0;
+$logged_out   = isset($_GET['logged_out']);
+
+// Safe return URL — reject host-relative (//evil.com) and absolute URLs
+$raw_return = $_GET['return'] ?? '';
+$parsed_ret = parse_url($raw_return);
+$return_url = (isset($parsed_ret['path']) && !isset($parsed_ret['host']))
+    ? htmlspecialchars($raw_return, ENT_QUOTES, 'UTF-8')
+    : '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_verify();
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
 
-    $role = auth_attempt($username, $password);
-
-    if ($role !== false) {
-        // Regenerate session ID to prevent fixation
-        session_regenerate_id(true);
-        $_SESSION['auth_user'] = $username;
-        $_SESSION['auth_role'] = $role;
-
-        // Safe redirect: only allow relative paths
-        $safe_return = '';
-        if ($return_url && strpos($return_url, '/') === 0) {
-            $safe_return = $return_url;
-        }
-
-        if ($safe_return) {
-            header('Location: ' . $safe_return);
-        } else {
-            header('Location: ' . ($role === 'admin' ? 'admin.php' : 'orders.php'));
-        }
-        exit;
+    // Check lockout BEFORE attempting password verify
+    if (auth_is_locked($username)) {
+        $locked_secs = auth_lockout_remaining($username);
+        $error = 'Too many failed attempts. Please wait ' . ceil($locked_secs / 60) . ' minute(s) before trying again.';
     } else {
-        $error = 'Invalid username or password.';
+        $role = auth_attempt($username, $password);
+
+        if ($role !== false) {
+            // Regenerate session ID to prevent fixation
+            session_regenerate_id(true);
+            $_SESSION['auth_user'] = $username;
+            $_SESSION['auth_role'] = $role;
+
+            if ($return_url) {
+                header('Location: ' . $return_url);
+            } else {
+                header('Location: ' . ($role === 'admin' ? 'admin.php' : 'orders.php'));
+            }
+            exit;
+        } else {
+            $error = 'Invalid username or password.';
+        }
     }
 }
 ?>
@@ -383,6 +391,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <!-- Form -->
         <form method="POST" action="" novalidate>
+            <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
             <?php if ($return_url): ?>
                 <input type="hidden" name="return" value="<?= $return_url ?>">
             <?php endif; ?>

@@ -1,10 +1,23 @@
 <?php
 // cashfree_config.php — Cashfree Payment Gateway Configuration
-// Edit credentials below with your Cashfree Merchant App ID and Secret Key.
+// Credentials are loaded from the .env file located one level above this file.
+// Do NOT hardcode API keys here. Edit the .env file instead.
 
-define('CF_ENV', 'sandbox'); // 'sandbox' or 'production'
-define('CF_APP_ID', 'TEST11168022457f99e48d0057ff1a4c22086111'); // Replace with your Cashfree App ID
-define('CF_SECRET_KEY', 'cfsk_ma_test_7fcc4614eba493da2b46cf629a8a564a_efe3fbb6'); // Replace with your Cashfree Secret Key
+// ── Load .env ─────────────────────────────────────────────────
+$_env_path = __DIR__ . '/../.env';
+if (!file_exists($_env_path)) {
+    error_log('[Cashfree] .env file not found at ' . $_env_path);
+    define('CF_ENV',        'sandbox');
+    define('CF_APP_ID',     '');
+    define('CF_SECRET_KEY', '');
+} else {
+    $_env = parse_ini_file($_env_path);
+    define('CF_ENV',        $_env['CF_ENV']        ?? 'sandbox');
+    define('CF_APP_ID',     $_env['CF_APP_ID']     ?? '');
+    define('CF_SECRET_KEY', $_env['CF_SECRET_KEY'] ?? '');
+    unset($_env, $_env_path);
+}
+
 define('CF_API_VERSION', '2023-08-01');
 
 function get_cashfree_base_url(): string {
@@ -18,11 +31,11 @@ function get_cashfree_base_url(): string {
  */
 function cashfree_create_order(array $params): array {
     $url = get_cashfree_base_url() . '/orders';
-    
+
     $headers = [
         'Content-Type: application/json',
         'x-api-version: ' . CF_API_VERSION,
-        'x-client-id: ' . CF_APP_ID,
+        'x-client-id: '     . CF_APP_ID,
         'x-client-secret: ' . CF_SECRET_KEY,
     ];
 
@@ -48,7 +61,7 @@ function cashfree_create_order(array $params): array {
         CURLOPT_HTTPHEADER     => $headers,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_TIMEOUT        => 15,
-        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYPEER => true,  // ✅ FIXED: was false — MITM vulnerability
     ]);
 
     $response = curl_exec($ch);
@@ -57,7 +70,8 @@ function cashfree_create_order(array $params): array {
     curl_close($ch);
 
     if ($error) {
-        return ['success' => false, 'error' => $error];
+        error_log('[Cashfree] cURL error: ' . $error);
+        return ['success' => false, 'error' => 'Payment gateway connection failed.'];
     }
 
     $data = json_decode($response, true);
@@ -70,8 +84,8 @@ function cashfree_create_order(array $params): array {
         ];
     }
 
-    // Return detailed error if API response contains failure message
     $msg = $data['message'] ?? 'Failed to connect to Cashfree API (HTTP ' . $httpCode . ')';
+    error_log('[Cashfree] Order creation failed: ' . $msg . ' | HTTP ' . $httpCode);
     return ['success' => false, 'error' => $msg, 'raw' => $data];
 }
 
@@ -80,11 +94,11 @@ function cashfree_create_order(array $params): array {
  */
 function cashfree_get_order_status(string $cf_order_id): array {
     $url = get_cashfree_base_url() . '/orders/' . urlencode($cf_order_id);
-    
+
     $headers = [
         'Content-Type: application/json',
         'x-api-version: ' . CF_API_VERSION,
-        'x-client-id: ' . CF_APP_ID,
+        'x-client-id: '     . CF_APP_ID,
         'x-client-secret: ' . CF_SECRET_KEY,
     ];
 
@@ -93,17 +107,24 @@ function cashfree_get_order_status(string $cf_order_id): array {
         CURLOPT_HTTPHEADER     => $headers,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_TIMEOUT        => 15,
-        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYPEER => true,  // ✅ FIXED: was false — MITM vulnerability
     ]);
 
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlErr  = curl_error($ch);
     curl_close($ch);
+
+    if ($curlErr) {
+        error_log('[Cashfree] Status check cURL error: ' . $curlErr);
+        return ['success' => false, 'error' => 'Payment gateway connection failed.'];
+    }
 
     $data = json_decode($response, true);
     if ($httpCode === 200 && isset($data['order_status'])) {
         return ['success' => true, 'order_status' => $data['order_status'], 'data' => $data];
     }
 
+    error_log('[Cashfree] Status check failed: HTTP ' . $httpCode . ' | ' . json_encode($data));
     return ['success' => false, 'error' => $data['message'] ?? 'Unable to fetch status'];
 }

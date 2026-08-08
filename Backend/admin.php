@@ -581,6 +581,7 @@ $filter_cat = $_GET['filter'] ?? 'all';
         <div class="modal-sub"  id="me-sub">Fill in the details below</div>
 
         <form method="POST" action="admin_actions.php" enctype="multipart/form-data" class="adm-form" id="edit-form">
+            <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
             <input type="hidden" name="action"   id="f-action" value="add_item">
 
             <div class="adm-row2">
@@ -695,6 +696,7 @@ $filter_cat = $_GET['filter'] ?? 'all';
             This action cannot be undone.
         </p>
         <form method="POST" action="admin_actions.php">
+            <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
             <input type="hidden" name="action" value="delete_item">
             <input type="hidden" name="item_id" id="del-id" value="">
             <div class="adm-mactions" style="justify-content:center">
@@ -840,8 +842,9 @@ function toggleVis(btn) {
     btn.disabled = true;
 
     const fd = new FormData();
-    fd.append('action',  'toggle_visibility');
-    fd.append('item_id', id);
+    fd.append('action',     'toggle_visibility');
+    fd.append('item_id',    id);
+    fd.append('csrf_token', '<?= csrf_token() ?>');
 
     fetch('admin_actions.php', {
         method:  'POST',

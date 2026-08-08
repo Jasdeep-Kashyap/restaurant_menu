@@ -3,6 +3,7 @@
 session_start();
 header('Content-Type: application/json');
 
+require_once '../includes/auth.php';
 require_once '../includes/db.php';
 require_once '../includes/cashfree_config.php';
 
@@ -62,21 +63,10 @@ if ($result['success']) {
         'environment'        => CF_ENV,
     ]);
 } else {
-    // If API keys are default placeholders or API request fails, provide fallback session for sandbox demo testing
-    if (CF_APP_ID === 'TEST_APP_ID' || strpos($result['error'], 'API') !== false) {
-        $mock_session_id = 'session_mock_cf_' . md5($cf_order_id . time());
-        echo json_encode([
-            'success'            => true,
-            'payment_session_id' => $mock_session_id,
-            'cf_order_id'        => $cf_order_id,
-            'environment'        => 'sandbox_demo',
-            'note'               => 'Running in Cashfree Sandbox Demo Mode (Default keys).',
-        ]);
-    } else {
-        echo json_encode([
-            'success' => false,
-            'error'   => $result['error'],
-        ]);
-    }
+    error_log('[create_cashfree_order] Order creation failed: ' . ($result['error'] ?? 'unknown'));
+    echo json_encode([
+        'success' => false,
+        'error'   => $result['error'] ?? 'Payment gateway error. Please try again.',
+    ]);
 }
 exit;

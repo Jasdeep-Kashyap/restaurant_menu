@@ -9,6 +9,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: orders.php');
     exit;
 }
+
+// Verify CSRF token
+csrf_verify();
 //Checks if the request method is not POST & Exits the script if the request method is not POST
 
 $id = intval($_POST['order_id'] ?? 0);
@@ -35,7 +38,8 @@ try {
     $name = htmlspecialchars($row['customer_name']);
     header('Location: orders.php?del=success&msg=' . urlencode("Order #{$id} for {$name} marked as served and removed."));//Redirects to orders.php with the success message
 } catch (PDOException $e) {
-    header('Location: orders.php?del=error&msg=' . urlencode('Database error: ' . $e->getMessage()));
+    error_log('[delete_order] DB error: ' . $e->getMessage());
+    header('Location: orders.php?del=error&msg=' . urlencode('A database error occurred. Please try again.'));
 }//Error Handling
 exit;
 ?>

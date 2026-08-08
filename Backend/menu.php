@@ -4,6 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
     @ini_set('session.gc_maxlifetime', 86400);
     session_start();
 }
+require_once '../includes/auth.php'; // For csrf_token() helper
 
 $page_title = 'Our Menu — La Maison';
 $page_desc = 'Browse La Maison\'s curated fine-dining menu — starters, mains, desserts, and drinks. Order online.';
@@ -238,10 +239,11 @@ include '../includes/header.php';
 
                 <!-- ═══ MULTI-STEP CHECKOUT ═══════════════════════ -->
                 <form class="order-form" id="checkoutForm" method="POST" action="process_order.php">
+                    <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                     <input type="hidden" name="items_json" value='<?= htmlspecialchars(json_encode(array_map(function ($ci) {
                         return $ci['name'] . ' (×' . $ci['qty'] . ')';
                     }, $cart)), ENT_QUOTES) ?>'>
-                    <input type="hidden" name="total_price" value="<?= number_format($cart_total, 2, '.', '') ?>">
+                    <!-- total_price removed: server recalculates from $_SESSION['cart'] -->
                     <input type="hidden" name="payment_confirmed" id="paymentConfirmed" value="0">
                     <input type="hidden" name="utr_number" id="utrNumber" value="">
                     <input type="hidden" name="scheduled_date" id="hiddenSchedDate" value="">

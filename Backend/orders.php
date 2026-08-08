@@ -81,6 +81,7 @@ $del_msg = $_GET['msg'] ?? '';
         <div class="od-modal-actions">
             <button class="od-modal-cancel" id="od-modal-cancel">Cancel</button>
             <form method="POST" action="delete_order.php" id="od-delete-form">
+                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                 <input type="hidden" name="order_id" id="modal-order-id" value="">
                 <button type="submit" class="od-modal-confirm">✓ Served — Remove</button>
             </form>

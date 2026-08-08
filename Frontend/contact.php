@@ -3,10 +3,12 @@ $page_title = 'Contact Us — La Maison';
 $page_desc = 'Get in touch with La Maison. Find our address, opening hours, phone number, or send us a message to book a table.';
 
 require_once '../includes/db.php';
+require_once '../includes/auth.php';
 
 $form_sent = false;
 $form_error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['contact_submit'])) {
+    csrf_verify();
     $name = trim($_POST['name'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $phone = trim($_POST['phone'] ?? '');
@@ -98,6 +100,7 @@ include '../includes/header.php';
                 <?php endif; ?>
 
                 <form method="POST" action="contact.php" class="contact-form">
+                    <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                     <div class="form-row">
                         <div class="form-group">
                             <label for="name">Name *</label>

@@ -3,12 +3,16 @@
 // Validates UPI payment confirmation, scheduling, and assigns a cycling Order ID (1–500).
 
 session_start();
+require_once '../includes/auth.php';
 require_once '../includes/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: menu.php');
     exit;
 }
+
+// Verify CSRF token on every checkout submission
+csrf_verify();
 
 /* ── Safe Auto-migrate schema ── */
 try {
@@ -44,12 +48,20 @@ try {
 /* ── Sanitise & validate ─────────────────────────────────── */
 $customer_name      = trim($_POST['customer_name'] ?? '');
 $items_json         = trim($_POST['items_json']    ?? '');
-$total_price        = floatval($_POST['total_price'] ?? 0);
 $payment_confirmed  = ($_POST['payment_confirmed'] ?? '') === '1';
 $utr_raw            = trim($_POST['utr_number'] ?? '');
 $utr_number         = strtoupper(preg_replace('/[^0-9A-Z]/i', '', $utr_raw));
 $scheduled_date     = trim($_POST['scheduled_date'] ?? '');
 $scheduled_time     = trim($_POST['scheduled_time'] ?? '');
+
+// ✅ Server-side price recalculation from session cart (MED-2 fix)
+// Never trust client-supplied total_price.
+$cart        = $_SESSION['cart'] ?? [];
+$total_price = 0.0;
+foreach ($cart as $ci) {
+    $total_price += floatval($ci['price']) * intval($ci['qty']);
+}
+$total_price = round($total_price, 2);
 
 // Basic field validation
 if ($customer_name === '' || $items_json === '' || $total_price <= 0) {
@@ -145,7 +157,8 @@ try {
     if ($pdo->inTransaction()) {
         $pdo->rollBack();
     }
-    header('Location: menu.php?status=error&msg=' . urlencode('Database error: ' . $e->getMessage()));
+    error_log('[process_order] DB error: ' . $e->getMessage());
+    header('Location: menu.php?status=error&msg=' . urlencode('A database error occurred. Please try again.'));
 }
 
 exit;

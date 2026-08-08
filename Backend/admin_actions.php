@@ -6,9 +6,13 @@
  * Supported actions: toggle_visibility, update_item, add_item, delete_item
  */
 
+session_start();
 require_once '../includes/auth.php';
-auth_require(['admin']);
 require_once '../includes/db.php';
+
+// ── Security: require admin login + valid CSRF token ────────
+auth_require(['admin']);
+csrf_verify();
 
 // Only accept POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -36,8 +40,8 @@ function handle_image_upload(string $field = 'item_image'): ?string {
         return null;
     }
 
-    // Validate file type
-    $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+    // Validate file type — SVG excluded (XSS risk)
+    $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
     $mime = finfo_file($finfo, $file['tmp_name']);
     finfo_close($finfo);
@@ -104,8 +108,13 @@ if ($action === 'toggle_visibility') {
             redirect_back('error', 'Item not found.');
         }
     } catch (PDOException $e) {
-        if ($is_ajax) { header('Content-Type: application/json'); echo json_encode(['ok' => false, 'msg' => $e->getMessage()]); exit; }
-        redirect_back('error', 'Database error: ' . $e->getMessage());
+        if ($is_ajax) {
+            header('Content-Type: application/json');
+            echo json_encode(['ok' => false, 'msg' => 'Database error. Please try again.']);
+            exit;
+        }
+        error_log('[admin_actions] toggle_visibility DB error: ' . $e->getMessage());
+        redirect_back('error', 'A database error occurred. Please try again.');
     }
 }
 
@@ -146,7 +155,8 @@ elseif ($action === 'update_item') {
 
         redirect_back('success', "\"$name\" updated successfully.");
     } catch (PDOException $e) {
-        redirect_back('error', 'Database error: ' . $e->getMessage());
+        error_log('[admin_actions] update_item DB error: ' . $e->getMessage());
+        redirect_back('error', 'A database error occurred. Please try again.');
     }
 }
 
@@ -189,7 +199,8 @@ elseif ($action === 'add_item') {
 
         redirect_back('success', "\"$name\" added to the menu!");
     } catch (PDOException $e) {
-        redirect_back('error', 'Database error: ' . $e->getMessage());
+        error_log('[admin_actions] add_item DB error: ' . $e->getMessage());
+        redirect_back('error', 'A database error occurred. Please try again.');
     }
 }
 
@@ -217,7 +228,8 @@ elseif ($action === 'delete_item') {
             redirect_back('error', 'Item not found.');
         }
     } catch (PDOException $e) {
-        redirect_back('error', 'Database error: ' . $e->getMessage());
+        error_log('[admin_actions] delete_item DB error: ' . $e->getMessage());
+        redirect_back('error', 'A database error occurred. Please try again.');
     }
 }
 

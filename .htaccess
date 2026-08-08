@@ -1,0 +1,73 @@
+# ══════════════════════════════════════════════════════════════════
+# La Maison — Apache Configuration
+# ══════════════════════════════════════════════════════════════════
+
+Options -Indexes
+
+# ── Custom Error Pages ─────────────────────────────────────────
+ErrorDocument 400 /img/restaurant_menu/errors/400.php
+ErrorDocument 403 /img/restaurant_menu/errors/403.php
+ErrorDocument 404 /img/restaurant_menu/errors/404.php
+ErrorDocument 500 /img/restaurant_menu/errors/500.php
+
+# ── Block .git directory access (LOW-1 fix) ────────────────────
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Block .git and other hidden directories
+    RewriteRule ^\.git(/.*)?$ - [F,L]
+    RewriteRule ^\.env$       - [F,L]
+</IfModule>
+
+# Also block via FilesMatch for extra safety
+<FilesMatch "^\.">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# ── Block direct access to sensitive include files ─────────────
+<FilesMatch "\.(env|sql|log|bak|swp)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Block access to the includes/ directory directly
+<IfModule mod_rewrite.c>
+    RewriteRule ^includes/.*\.php$ - [F,L]
+</IfModule>
+
+# ── Security Headers ───────────────────────────────────────────
+<IfModule mod_headers.c>
+    # Prevent MIME-type sniffing
+    Header always set X-Content-Type-Options "nosniff"
+
+    # Prevent clickjacking
+    Header always set X-Frame-Options "SAMEORIGIN"
+
+    # Enable XSS filter (older browsers)
+    Header always set X-XSS-Protection "1; mode=block"
+
+    # Referrer policy
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # Remove server version info
+    Header always unset X-Powered-By
+    Header always unset Server
+</IfModule>
+
+# ── PHP Settings ───────────────────────────────────────────────
+<IfModule mod_php.c>
+    # Hide PHP errors from end users (log internally instead)
+    php_flag  display_errors Off
+    php_flag  log_errors On
+</IfModule>

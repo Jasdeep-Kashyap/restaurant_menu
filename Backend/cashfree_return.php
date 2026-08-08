@@ -26,18 +26,20 @@ $total_price    = $pending_data['total_price'];
 $scheduled_date = $pending_data['scheduled_date'];
 $scheduled_time = $pending_data['scheduled_time'];
 
-// Check Cashfree order status if live API is enabled
-$is_paid = true;
+// Verify payment status with Cashfree API
+// ✅ FIXED (CRIT-2): Default to NOT paid — must be explicitly confirmed by API
+$is_paid = false;
 $utr_number = 'CF_' . strtoupper(substr(md5($cf_order_id), 0, 10));
 
-if (CF_APP_ID !== 'TEST_APP_ID') {
-    $status_res = cashfree_get_order_status($cf_order_id);
-    if ($status_res['success']) {
-        $order_status = strtoupper($status_res['order_status']);
-        if ($order_status !== 'PAID') {
-            $is_paid = false;
-        }
+$status_res = cashfree_get_order_status($cf_order_id);
+if ($status_res['success']) {
+    $order_status = strtoupper($status_res['order_status']);
+    if ($order_status === 'PAID') {
+        $is_paid = true;
     }
+} else {
+    // API call failed — log it and deny order to prevent bypass
+    error_log('[cashfree_return] Status check failed for order ' . $cf_order_id . ': ' . ($status_res['error'] ?? 'unknown'));
 }
 
 if (!$is_paid) {
@@ -100,6 +102,7 @@ try {
     if ($pdo->inTransaction()) {
         $pdo->rollBack();
     }
-    header('Location: menu.php?status=error&msg=' . urlencode('Database error while saving Cashfree order: ' . $e->getMessage()));
+    error_log('[cashfree_return] DB error: ' . $e->getMessage());
+    header('Location: menu.php?status=error&msg=' . urlencode('A database error occurred while saving your order. Please contact us.'));
 }
 exit;
