@@ -38,15 +38,14 @@ $current_page = basename($_SERVER['PHP_SELF']);
             </label>
 
             <ul class="nav-links">
-                <li><a href="../index.html" class="<?= ($current_page === 'index.php' || $current_page === 'index.html') ? 'active' : '' ?>">Home</a></li>
-                <li><a href="../Backend/menu.php" class="<?= $current_page === 'menu.php' ? 'active' : '' ?>">Menu</a></li>
-                <li><a href="../Frontend/about.php" class="<?= $current_page === 'about.php' ? 'active' : '' ?>">About</a></li>
-                <li><a href="../Frontend/contact.php" class="<?= $current_page === 'contact.php' ? 'active' : '' ?>">Contact</a>
+                <li><a href="../index.html"
+                        class="<?= ($current_page === 'index.php' || $current_page === 'index.html') ? 'active' : '' ?>">Home</a>
                 </li>
-                <li>
-                    <a href="../Backend/menu.php" class="nav-order-btn">
-                        Order Now
-                    </a>
+                <li><a href="../Frontend/about.php"
+                        class="<?= $current_page === 'about.php' ? 'active' : '' ?>">About</a></li>
+                <li><a href="../Frontend/contact.php"
+                        class="<?= $current_page === 'contact.php' ? 'active' : '' ?>">Contact</a></li>
+                <li><a href="../Backend/menu.php" class="<?= $current_page === 'menu.php' ? 'active' : '' ?>">Menu</a>
                 </li>
             </ul>
         </div>

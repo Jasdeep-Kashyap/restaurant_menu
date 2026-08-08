@@ -112,17 +112,17 @@ img { max-width: 100%; display: block; }
     list-style: none;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
 }
 
 .nav-links a {
-    padding: 8px 18px;
+    padding: 10px 22px;
     border-radius: 50px;
-    font-size: 0.92rem;
+    font-size: 0.95rem;
     font-weight: 500;
     color: var(--muted);
     transition: var(--transition);
-    letter-spacing: 0.3px;
+    letter-spacing: 0.4px;
 }
 
 .nav-links a:hover {
@@ -151,25 +151,38 @@ img { max-width: 100%; display: block; }
     transform: translateY(-1px);
 }
 
-/* Mobile nav */
-@media (max-width: 768px) {
-    .nav-toggle-label { display: flex; }
+/* Mobile nav & Portrait view */
+@media (max-width: 768px), (orientation: portrait) and (max-width: 1024px) {
+    .nav-inner {
+        padding: 0 20px;
+    }
+
+    .nav-toggle-label {
+        display: flex;
+        padding: 10px;
+        margin-right: -4px;
+    }
 
     .nav-links {
         position: fixed;
         top: 0; right: 0;
-        width: 280px;
+        width: 290px;
         height: 100vh;
-        background: rgba(19,22,27,0.97);
+        background: rgba(19,22,27,0.98);
         backdrop-filter: blur(24px);
         -webkit-backdrop-filter: blur(24px);
         flex-direction: column;
         align-items: stretch;
-        padding: 100px 24px 40px;
-        gap: 4px;
-        border-left: 1px solid rgba(255,255,255,0.06);
+        padding: 110px 28px 48px;
+        gap: 14px;
+        border-left: 1px solid rgba(255,255,255,0.08);
         transform: translateX(100%);
         transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+        box-shadow: -10px 0 40px rgba(0,0,0,0.5);
+    }
+
+    .nav-links li {
+        width: 100%;
     }
 
     .nav-toggle-checkbox:checked ~ .nav-links {
@@ -187,14 +200,17 @@ img { max-width: 100%; display: block; }
     }
 
     .nav-links a {
-        padding: 14px 18px;
+        padding: 16px 22px;
         border-radius: var(--radius-btn);
-        font-size: 1rem;
+        font-size: 1.05rem;
+        display: block;
+        letter-spacing: 0.5px;
     }
 
     .nav-order-btn {
         text-align: center;
-        margin-top: 12px;
+        margin-top: 16px;
+        padding: 14px 24px !important;
     }
 }
 
@@ -2504,5 +2520,438 @@ tbody td:first-child { color: var(--text); font-weight: 500; }
 @media (max-width: 480px) {
     .adm-stats {
         grid-template-columns: 1fr;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PHONE RATIO & MOBILE RESPONSIVE OPTIMIZATIONS
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Tablet & Mobile Layout Fixes (<= 768px) */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 20px;
+    }
+
+    .section {
+        padding: 60px 0;
+    }
+
+    .section-header {
+        margin-bottom: 40px;
+    }
+
+    .about-story-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+    }
+
+    .about-story-grid.reverse .about-story-text {
+        order: initial;
+    }
+
+    .about-story-img img {
+        height: 280px;
+    }
+
+    .contact-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+    }
+
+    .contact-form-wrap {
+        padding: 30px 24px;
+    }
+
+    .featured-grid,
+    .menu-container {
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 20px;
+    }
+}
+
+/* Phone Aspect Ratio & Compact High-Density Boxes (<= 540px) */
+@media (max-width: 540px) {
+    :root {
+        --nav-height: 64px;
+    }
+
+    .container {
+        padding: 0 14px;
+    }
+
+    .section {
+        padding: 36px 0;
+    }
+
+    .section-header {
+        margin-bottom: 24px;
+    }
+
+    /* Hero section phone optimization */
+    .home-hero {
+        min-height: auto;
+        padding: calc(var(--nav-height) + 30px) 14px 44px;
+    }
+
+    .page-hero {
+        padding: calc(var(--nav-height) + 24px) 14px 28px;
+    }
+
+    .hero-tag {
+        padding: 4px 12px;
+        font-size: 0.68rem;
+        margin-bottom: 10px;
+        letter-spacing: 2px;
+    }
+
+    .hero h1 {
+        font-size: 2.1rem;
+        margin-bottom: 8px;
+    }
+
+    .hero-subtitle {
+        font-size: 0.92rem;
+        line-height: 1.5;
+    }
+
+    .divider {
+        margin: 16px auto 0;
+    }
+
+    .hero-cta {
+        margin-top: 24px;
+        flex-direction: column;
+        width: 100%;
+        gap: 10px;
+    }
+
+    .hero-cta .btn {
+        width: 100%;
+        padding: 12px 20px;
+        font-size: 0.9rem;
+    }
+
+    /* ── High Density Compact Menu Cards for Mobile (Horizontal List Style) ── */
+    .menu-container {
+        grid-template-columns: 1fr !important;
+        gap: 12px;
+        padding: 0 12px;
+        margin-bottom: 40px;
+    }
+
+    .menu-card {
+        flex-direction: row;
+        align-items: center;
+        border-radius: 14px;
+        padding: 8px;
+    }
+
+    .img-wrapper {
+        width: 96px;
+        height: 96px;
+        border-radius: 10px;
+        flex-shrink: 0;
+        overflow: hidden;
+    }
+
+    .img-wrapper::after {
+        display: none;
+    }
+
+    .card-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .badge {
+        top: 4px;
+        right: 4px;
+        font-size: 0.62rem;
+        padding: 2px 6px;
+    }
+
+    .card-body {
+        padding: 4px 10px 4px 12px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .card-meta {
+        margin-bottom: 2px;
+        gap: 6px;
+        align-items: center;
+    }
+
+    .card-title {
+        font-size: 0.98rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .card-price {
+        font-size: 0.95rem;
+    }
+
+    .card-desc {
+        font-size: 0.78rem;
+        line-height: 1.35;
+        margin-bottom: 8px;
+        color: var(--muted);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .add-btn {
+        padding: 7px 12px;
+        font-size: 0.8rem;
+        border-radius: 8px;
+    }
+
+    .qty-controls {
+        border-radius: 8px;
+    }
+
+    .qty-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+    }
+
+    .qty-display {
+        padding: 4px 6px;
+        font-size: 0.88rem;
+        min-width: 30px;
+    }
+
+    /* ── Compact Feature Cards ── */
+    .features-grid {
+        grid-template-columns: 1fr !important;
+        gap: 10px;
+    }
+
+    .feature-card {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        text-align: left;
+        padding: 14px 16px;
+        gap: 14px;
+        border-radius: 14px;
+    }
+
+    .feature-icon {
+        font-size: 1.8rem;
+        margin-bottom: 0;
+        flex-shrink: 0;
+    }
+
+    .feature-card h3 {
+        font-size: 1rem;
+        margin-bottom: 2px;
+    }
+
+    .feature-card p {
+        font-size: 0.82rem;
+        line-height: 1.4;
+    }
+
+    /* ── Compact Featured Cards ── */
+    .featured-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px;
+    }
+
+    .featured-card {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        border-radius: 14px;
+        padding: 8px;
+    }
+
+    .featured-img-wrap {
+        width: 96px;
+        height: 96px;
+        border-radius: 10px;
+        flex-shrink: 0;
+    }
+
+    .featured-img-wrap img {
+        height: 100%;
+        width: 100%;
+    }
+
+    .featured-img-wrap::after {
+        display: none;
+    }
+
+    .featured-badge {
+        top: 4px; right: 4px;
+        font-size: 0.62rem;
+        padding: 2px 6px;
+    }
+
+    .featured-body {
+        padding: 4px 10px 4px 12px;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .featured-meta {
+        margin-bottom: 2px;
+    }
+
+    .featured-meta h3 {
+        font-size: 0.98rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .featured-price {
+        font-size: 0.95rem;
+    }
+
+    .featured-body p {
+        font-size: 0.78rem;
+        line-height: 1.35;
+        margin-bottom: 6px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* ── Compact Testimonial Cards ── */
+    .testimonial-grid {
+        grid-template-columns: 1fr !important;
+        gap: 10px;
+    }
+
+    .testimonial-card {
+        padding: 14px 16px;
+        border-radius: 14px;
+    }
+
+    .stars {
+        font-size: 0.9rem;
+        margin-bottom: 6px;
+    }
+
+    .testimonial-card p {
+        font-size: 0.84rem;
+        line-height: 1.45;
+        margin-bottom: 8px;
+    }
+
+    .testimonial-author strong {
+        font-size: 0.85rem;
+    }
+
+    /* ── Compact Value Cards (About Page) ── */
+    .values-grid {
+        grid-template-columns: 1fr !important;
+        gap: 10px;
+    }
+
+    .value-card {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: 14px 16px;
+        gap: 14px;
+        border-radius: 14px;
+    }
+
+    .value-number {
+        font-size: 1.6rem;
+        margin-bottom: 0;
+        flex-shrink: 0;
+        min-width: 32px;
+    }
+
+    .value-card h3 {
+        font-size: 0.98rem;
+        margin-bottom: 2px;
+    }
+
+    .value-card p {
+        font-size: 0.82rem;
+        line-height: 1.4;
+    }
+
+    /* ── Compact Contact Info Cards (Contact Page) ── */
+    .contact-info-card {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: 14px 16px;
+        gap: 14px;
+        border-radius: 14px;
+    }
+
+    .contact-icon {
+        font-size: 1.6rem;
+        margin-bottom: 0;
+        flex-shrink: 0;
+    }
+
+    .contact-info-card h3 {
+        font-size: 0.98rem;
+        margin-bottom: 2px;
+    }
+
+    .contact-info-card p {
+        font-size: 0.82rem;
+        line-height: 1.4;
+    }
+
+    .contact-form-wrap {
+        padding: 18px 16px;
+        border-radius: 14px;
+    }
+
+    .contact-form-wrap h2 {
+        font-size: 1.3rem;
+        margin-bottom: 4px;
+    }
+
+    .form-subtitle {
+        font-size: 0.84rem;
+        margin-bottom: 18px;
+    }
+
+    /* Category Nav Pills on Menu Page */
+    .category-nav {
+        gap: 6px;
+        padding: 0 10px 20px;
+    }
+
+    .cat-btn {
+        padding: 7px 14px;
+        font-size: 0.82rem;
+    }
+
+    /* Floating Cart Pill & Drawer */
+    .cart-pill-wrap {
+        right: 12px;
+        bottom: 12px;
+    }
+
+    .cart-pill {
+        padding: 9px 15px;
+        font-size: 0.85rem;
+    }
+
+    .cart-drawer {
+        width: calc(100vw - 24px);
     }
 }

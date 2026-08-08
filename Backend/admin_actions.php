@@ -3,7 +3,8 @@
  * admin_actions.php — Handles all admin CRUD operations for menu items.
  * 
  * Receives POST requests from admin.php and redirects back with status.
- * Supported actions: toggle_visibility, update_item, add_item, delete_item
+ * Supported actions: toggle_visibility, update_item, add_item, delete_item,
+ *                    toggle_page, generate_hash
  */
 
 session_start();
@@ -231,6 +232,54 @@ elseif ($action === 'delete_item') {
         error_log('[admin_actions] delete_item DB error: ' . $e->getMessage());
         redirect_back('error', 'A database error occurred. Please try again.');
     }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ACTION: Toggle Page Visibility
+// ═══════════════════════════════════════════════════════════════
+elseif ($action === 'toggle_page') {
+    $is_ajax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) ||
+               (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false);
+
+    $page = strtolower(trim($_POST['page'] ?? ''));
+    $allowed_pages = ['about', 'contact', 'surprise'];
+
+    if (!in_array($page, $allowed_pages, true)) {
+        if ($is_ajax) { header('Content-Type: application/json'); echo json_encode(['ok' => false, 'msg' => 'Invalid page.']); exit; }
+        redirect_back('error', 'Invalid page.');
+    }
+
+    $settings_file = __DIR__ . '/../includes/page_settings.json';
+    $settings = json_decode(file_get_contents($settings_file), true) ?? [];
+    $settings[$page] = !($settings[$page] ?? true);
+    $new_state = $settings[$page];
+
+    if (file_put_contents($settings_file, json_encode($settings, JSON_PRETTY_PRINT)) !== false) {
+        if ($is_ajax) {
+            header('Content-Type: application/json');
+            echo json_encode(['ok' => true, 'visible' => $new_state]);
+            exit;
+        }
+        redirect_back('success', 'Page visibility updated.');
+    } else {
+        if ($is_ajax) { header('Content-Type: application/json'); echo json_encode(['ok' => false, 'msg' => 'Could not write settings file.']); exit; }
+        redirect_back('error', 'Could not save settings. Check file permissions.');
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ACTION: Generate bcrypt hash (for credentials helper)
+// ═══════════════════════════════════════════════════════════════
+elseif ($action === 'generate_hash') {
+    header('Content-Type: application/json');
+    $password = $_POST['password'] ?? '';
+    if (strlen($password) < 6) {
+        echo json_encode(['ok' => false, 'msg' => 'Password must be at least 6 characters.']);
+        exit;
+    }
+    $hash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 10]);
+    echo json_encode(['ok' => true, 'hash' => $hash]);
+    exit;
 }
 
 // ═══════════════════════════════════════════════════════════════

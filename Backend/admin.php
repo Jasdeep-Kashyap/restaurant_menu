@@ -20,6 +20,12 @@ $cat_count     = count($categories);
 $status     = $_GET['status'] ?? '';
 $message    = htmlspecialchars($_GET['msg'] ?? '', ENT_QUOTES, 'UTF-8');
 $filter_cat = $_GET['filter'] ?? 'all';
+
+// Load page visibility settings
+$page_settings_file = __DIR__ . '/../includes/page_settings.json';
+$page_settings = file_exists($page_settings_file)
+    ? (json_decode(file_get_contents($page_settings_file), true) ?? [])
+    : ['about' => true, 'contact' => true, 'surprise' => true];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -32,9 +38,9 @@ $filter_cat = $_GET['filter'] ?? 'all';
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/style.css">
     <style>
-    /* ══════════════════════════════════════════
+    /* ════════════════════════════════════════════
        ADMIN PAGE — SCOPED STYLES (no conflicts)
-       ══════════════════════════════════════════ */
+       ════════════════════════════════════════════ */
 
     /* Override global table styles inside .adm-table-wrap only */
     .adm-table-wrap table {
@@ -140,6 +146,25 @@ $filter_cat = $_GET['filter'] ?? 'all';
     }
     .adm-add:hover { box-shadow: 0 6px 24px rgba(232,169,60,0.45); transform: translateY(-1px); }
 
+    /* ── Preview button ── */
+    .adm-preview-btn {
+        background: rgba(99,102,241,0.12);
+        color: #818cf8;
+        border: 1px solid rgba(99,102,241,0.3);
+        border-radius: 50px;
+        padding: 10px 20px;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.88rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.3s;
+        white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .adm-preview-btn:hover { background: rgba(99,102,241,0.22); border-color: rgba(99,102,241,0.5); transform: translateY(-1px); }
+
     /* ── Table wrap ── */
     .adm-table-wrap {
         background: rgba(255,255,255,0.03);
@@ -232,9 +257,309 @@ $filter_cat = $_GET['filter'] ?? 'all';
     .adm-btn-del    { color: #ff4757; border-color: rgba(255,71,87,0.3); }
     .adm-btn-del:hover   { background: rgba(255,71,87,0.12); border-color: #ff4757; }
 
-    /* ══════════════════════════════════════════
+    /* ════════════════════════════════════════════
+       PAGE VISIBILITY SECTION
+       ════════════════════════════════════════════ */
+    .adm-section-card {
+        background: rgba(255,255,255,0.025);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 18px;
+        padding: 24px 28px;
+        margin-bottom: 24px;
+    }
+    .adm-section-hdr {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        user-select: none;
+    }
+    .adm-section-hdr-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .adm-section-ico {
+        font-size: 1.4rem;
+        width: 42px; height: 42px;
+        border-radius: 12px;
+        background: rgba(232,169,60,0.1);
+        border: 1px solid rgba(232,169,60,0.2);
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+    .adm-section-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #f0f1f3;
+    }
+    .adm-section-sub {
+        font-size: 0.8rem;
+        color: #7a8090;
+        margin-top: 2px;
+    }
+    .adm-section-arrow {
+        font-size: 1rem;
+        color: #7a8090;
+        transition: transform 0.25s;
+    }
+    .adm-section-card.open .adm-section-arrow { transform: rotate(180deg); }
+    .adm-section-body {
+        display: none;
+        margin-top: 22px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .adm-section-card.open .adm-section-body { display: block; }
+
+    /* Page visibility grid */
+    .page-vis-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 16px;
+    }
+    .page-vis-item {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 14px;
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        transition: border-color 0.2s;
+        min-width: 0;
+    }
+    .page-vis-item:hover { border-color: rgba(232,169,60,0.2); }
+    .page-vis-info { flex: 1; min-width: 0; }
+    .page-vis-name { font-size: 0.95rem; font-weight: 600; color: #f0f1f3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .page-vis-url  { font-size: 0.72rem; color: rgba(122,128,144,0.6); font-family: monospace; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .page-vis-item .adm-toggle-btn { flex-shrink: 0; }
+    .page-vis-locked {
+        font-size: 0.72rem;
+        color: #e8a93c;
+        background: rgba(232,169,60,0.1);
+        border: 1px solid rgba(232,169,60,0.2);
+        border-radius: 20px;
+        padding: 3px 10px;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    /* ════════════════════════════════════════════
+       CREDENTIALS PANEL
+       ════════════════════════════════════════════ */
+    .cred-steps {
+        counter-reset: steps;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+    .cred-step {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+    }
+    .cred-step-num {
+        counter-increment: steps;
+        width: 30px; height: 30px; flex-shrink: 0;
+        border-radius: 50%;
+        background: rgba(232,169,60,0.1);
+        border: 1px solid rgba(232,169,60,0.25);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.8rem; font-weight: 700; color: #e8a93c;
+    }
+    .cred-step-num::before { content: counter(steps); }
+    .cred-step-body { flex: 1; padding-top: 4px; }
+    .cred-step-body p { font-size: 0.88rem; color: #b0b8cc; line-height: 1.6; }
+    .cred-step-body code {
+        display: inline-block;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 6px;
+        padding: 2px 8px;
+        font-size: 0.83rem;
+        color: #e8a93c;
+        font-family: monospace;
+        word-break: break-all;
+    }
+    .cred-step-body .cred-file {
+        display: inline-block;
+        background: rgba(99,102,241,0.1);
+        border: 1px solid rgba(99,102,241,0.25);
+        border-radius: 6px;
+        padding: 2px 8px;
+        font-size: 0.83rem;
+        color: #818cf8;
+        font-family: monospace;
+    }
+    /* Hash generator */
+    .hash-gen {
+        margin-top: 22px;
+        padding: 20px;
+        background: rgba(99,102,241,0.06);
+        border: 1px solid rgba(99,102,241,0.18);
+        border-radius: 14px;
+    }
+    .hash-gen h4 {
+        font-size: 0.9rem; font-weight: 700; color: #818cf8;
+        margin-bottom: 12px;
+        display: flex; align-items: center; gap: 7px;
+    }
+    .hash-gen-row {
+        display: flex; gap: 10px; flex-wrap: wrap;
+    }
+    .hash-gen input {
+        flex: 1; min-width: 180px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 8px;
+        color: #f0f1f3;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.9rem;
+        padding: 10px 14px;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+    .hash-gen input:focus { border-color: rgba(99,102,241,0.45); }
+    .hash-gen-btn {
+        background: linear-gradient(135deg, #6366f1, #818cf8);
+        border: none; border-radius: 8px;
+        color: white; font-family: 'Outfit', sans-serif;
+        font-size: 0.88rem; font-weight: 600;
+        padding: 10px 20px; cursor: pointer;
+        transition: 0.2s;
+    }
+    .hash-gen-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(99,102,241,0.4); }
+    .hash-result {
+        display: none;
+        margin-top: 12px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.09);
+        border-radius: 8px;
+        padding: 10px 14px;
+    }
+    .hash-result label {
+        font-size: 0.72rem; font-weight: 600; color: #7a8090;
+        text-transform: uppercase; letter-spacing: 0.5px;
+        display: block; margin-bottom: 5px;
+    }
+    .hash-result-val {
+        font-family: monospace; font-size: 0.78rem; color: #2ed573;
+        word-break: break-all; line-height: 1.5;
+    }
+    .hash-copy-btn {
+        margin-top: 8px;
+        background: rgba(46,213,115,0.1);
+        border: 1px solid rgba(46,213,115,0.25);
+        border-radius: 6px;
+        color: #2ed573;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.8rem; font-weight: 600;
+        padding: 6px 14px; cursor: pointer;
+        transition: 0.2s;
+    }
+    .hash-copy-btn:hover { background: rgba(46,213,115,0.18); }
+
+    /* ════════════════════════════════════════════
+       VIEW MODE OVERLAY
+       ════════════════════════════════════════════ */
+    #view-overlay {
+        display: none;
+        position: fixed; inset: 0; z-index: 4000;
+        background: #0d0e12;
+        overflow-y: auto;
+        animation: overlayIn 0.3s ease;
+    }
+    #view-overlay.open { display: block; }
+    @keyframes overlayIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to   { opacity: 1; transform: none; }
+    }
+    .view-banner {
+        position: sticky; top: 0; z-index: 10;
+        background: rgba(99,102,241,0.15);
+        border-bottom: 1px solid rgba(99,102,241,0.3);
+        backdrop-filter: blur(12px);
+        padding: 14px 24px;
+        display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        flex-wrap: wrap;
+    }
+    .view-banner-info {
+        display: flex; align-items: center; gap: 10px;
+        font-size: 0.9rem; font-weight: 600; color: #818cf8;
+    }
+    .view-banner-dot {
+        width: 8px; height: 8px; border-radius: 50%;
+        background: #818cf8;
+        animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.4); }
+    }
+    .view-close-btn {
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 8px;
+        color: #f0f1f3;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.88rem; font-weight: 600;
+        padding: 9px 18px; cursor: pointer;
+        transition: 0.2s;
+        display: flex; align-items: center; gap: 6px;
+    }
+    .view-close-btn:hover { background: rgba(255,255,255,0.12); }
+    .view-content {
+        max-width: 1200px; margin: 0 auto;
+        padding: 40px 24px 80px;
+    }
+    .view-cat-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #f0f1f3;
+        margin: 40px 0 20px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(255,255,255,0.07);
+        display: flex; align-items: center; gap: 10px;
+    }
+    .view-cat-title:first-child { margin-top: 0; }
+    .view-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+    }
+    .view-card {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: 0.3s;
+    }
+    .view-card:hover { border-color: rgba(232,169,60,0.25); transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+    .view-card-img {
+        width: 100%; height: 180px; object-fit: cover; display: block;
+        background: rgba(255,255,255,0.03);
+    }
+    .view-card-body { padding: 16px; }
+    .view-card-top {
+        display: flex; justify-content: space-between; align-items: flex-start;
+        margin-bottom: 6px; gap: 8px;
+    }
+    .view-card-name { font-size: 0.95rem; font-weight: 700; color: #f0f1f3; }
+    .view-card-price { color: #e8a93c; font-weight: 700; font-size: 0.95rem; white-space: nowrap; }
+    .view-card-desc { font-size: 0.8rem; color: #7a8090; line-height: 1.55; }
+    .view-empty {
+        text-align: center; padding: 60px 20px;
+        color: #7a8090;
+    }
+    .view-empty span { font-size: 3rem; display: block; margin-bottom: 12px; }
+
+    /* ════════════════════════════════════════════
        MODALS
-       ══════════════════════════════════════════ */
+       ════════════════════════════════════════════ */
     .adm-backdrop {
         display: none;
         position: fixed; inset: 0; z-index: 2000;
@@ -409,6 +734,17 @@ $filter_cat = $_GET['filter'] ?? 'all';
     @keyframes toastIn  { from { opacity:0; transform:translateX(40px); } to { opacity:1; transform:none; } }
     @keyframes toastOut { from { opacity:1; } to { opacity:0; pointer-events:none; } }
 
+    /* ── Table section header ── */
+    .adm-table-hdr {
+        display: flex; align-items: center; justify-content: space-between;
+        margin: 28px 0 14px;
+    }
+    .adm-table-hdr-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.15rem; font-weight: 700; color: #f0f1f3;
+        display: flex; align-items: center; gap: 8px;
+    }
+
     /* ── Empty state ── */
     .adm-empty { text-align:center; padding:60px 20px; color:#7a8090; }
     .adm-empty span { font-size:3rem; display:block; margin-bottom:14px; }
@@ -487,6 +823,7 @@ $filter_cat = $_GET['filter'] ?? 'all';
     <div class="adm-toolbar">
         <a href="menu.php" class="back-link">← Back to Menu</a>
         <div class="adm-toolbar-r">
+            <button class="adm-preview-btn" onclick="openPreview()">👁️ Preview as Customer</button>
             <div class="adm-filters">
                 <a href="admin.php?filter=all" class="cat-btn <?= $filter_cat === 'all' ? 'active' : '' ?>">All</a>
                 <?php foreach ($categories as $cat): ?>
@@ -500,7 +837,10 @@ $filter_cat = $_GET['filter'] ?? 'all';
         </div>
     </div>
 
-    <!-- Table -->
+    <!-- Menu Items Table -->
+    <div class="adm-table-hdr">
+        <div class="adm-table-hdr-title">🍽️ Menu Items</div>
+    </div>
     <div class="adm-table-wrap">
         <?php if ($total_items === 0): ?>
             <div class="adm-empty"><span>🍽️</span><p>No items yet. Click "Add New Item" to begin.</p></div>
@@ -567,6 +907,160 @@ $filter_cat = $_GET['filter'] ?? 'all';
             </tbody>
         </table>
         <?php endif; ?>
+    </div>
+
+    <!-- PAGE VISIBILITY -->
+    <div class="adm-section-card" id="page-vis-card" style="margin-top: 32px;">
+        <div class="adm-section-hdr" onclick="toggleSection('page-vis-card')">
+            <div class="adm-section-hdr-left">
+                <div class="adm-section-ico">🌐</div>
+                <div>
+                    <div class="adm-section-title">Page Visibility</div>
+                    <div class="adm-section-sub">Show or hide site pages from visitors</div>
+                </div>
+            </div>
+            <span class="adm-section-arrow">&#9660;</span>
+        </div>
+        <div class="adm-section-body">
+            <div class="page-vis-grid">
+                <div class="page-vis-item">
+                    <div class="page-vis-info">
+                        <div class="page-vis-name">🍽️ Menu</div>
+                        <div class="page-vis-url">Backend/menu.php</div>
+                    </div>
+                    <span class="page-vis-locked">Always On</span>
+                </div>
+                <div class="page-vis-item">
+                    <div class="page-vis-info">
+                        <div class="page-vis-name">📖 About</div>
+                        <div class="page-vis-url">Frontend/about.php</div>
+                    </div>
+                    <button class="adm-toggle-btn <?= ($page_settings['about'] ?? true) ? 'tog-on' : 'tog-off' ?>" data-page="about" onclick="togglePage(this)">
+                        <span class="tog-track"><span class="tog-knob"></span></span>
+                        <span class="tog-lbl"><?= ($page_settings['about'] ?? true) ? 'Visible' : 'Hidden' ?></span>
+                    </button>
+                </div>
+                <div class="page-vis-item">
+                    <div class="page-vis-info">
+                        <div class="page-vis-name">✉️ Contact</div>
+                        <div class="page-vis-url">Frontend/contact.php</div>
+                    </div>
+                    <button class="adm-toggle-btn <?= ($page_settings['contact'] ?? true) ? 'tog-on' : 'tog-off' ?>" data-page="contact" onclick="togglePage(this)">
+                        <span class="tog-track"><span class="tog-knob"></span></span>
+                        <span class="tog-lbl"><?= ($page_settings['contact'] ?? true) ? 'Visible' : 'Hidden' ?></span>
+                    </button>
+                </div>
+                <div class="page-vis-item">
+                    <div class="page-vis-info">
+                        <div class="page-vis-name">🎉 Surprise</div>
+                        <div class="page-vis-url">Frontend/suprise.php</div>
+                    </div>
+                    <button class="adm-toggle-btn <?= ($page_settings['surprise'] ?? true) ? 'tog-on' : 'tog-off' ?>" data-page="surprise" onclick="togglePage(this)">
+                        <span class="tog-track"><span class="tog-knob"></span></span>
+                        <span class="tog-lbl"><?= ($page_settings['surprise'] ?? true) ? 'Visible' : 'Hidden' ?></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CREDENTIALS & SECURITY -->
+    <div class="adm-section-card" id="cred-card">
+        <div class="adm-section-hdr" onclick="toggleSection('cred-card')">
+            <div class="adm-section-hdr-left">
+                <div class="adm-section-ico">🔐</div>
+                <div>
+                    <div class="adm-section-title">Credentials &amp; Security</div>
+                    <div class="adm-section-sub">How to change username or password</div>
+                </div>
+            </div>
+            <span class="adm-section-arrow">&#9660;</span>
+        </div>
+        <div class="adm-section-body">
+            <div class="cred-steps">
+                <div class="cred-step">
+                    <div class="cred-step-num"></div>
+                    <div class="cred-step-body"><p>Open <span class="cred-file">includes/auth.php</span> in a text editor or your hosting file manager.</p></div>
+                </div>
+                <div class="cred-step">
+                    <div class="cred-step-num"></div>
+                    <div class="cred-step-body">
+                        <p>Find the <code>AUTH_USERS</code> constant near the top. It looks like:</p>
+                        <pre style="margin-top:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:8px;padding:12px 14px;font-size:0.78rem;color:#b0b8cc;overflow-x:auto;"><span style="color:#e8a93c">const</span> AUTH_USERS = [
+    <span style="color:#2ed573">'Dunes_canteen'</span> =&gt; [  <span style="color:#7a8090">// &larr; username (array key)</span>
+        <span style="color:#818cf8">'hash'</span> =&gt; <span style="color:#2ed573">'$2y$10$...'</span>,  <span style="color:#7a8090">// &larr; bcrypt hash</span>
+        <span style="color:#818cf8">'role'</span> =&gt; <span style="color:#2ed573">'admin'</span>,
+    ],
+];</pre>
+                    </div>
+                </div>
+                <div class="cred-step">
+                    <div class="cred-step-num"></div>
+                    <div class="cred-step-body"><p><strong style="color:#f0f1f3">Change username:</strong> Replace <code>'Dunes_canteen'</code> (the array key) with your new username. It is case-sensitive.</p></div>
+                </div>
+                <div class="cred-step">
+                    <div class="cred-step-num"></div>
+                    <div class="cred-step-body"><p><strong style="color:#f0f1f3">Change password:</strong> Use the hash generator below to create a new bcrypt hash, then paste it as the <code>'hash'</code> value.</p></div>
+                </div>
+                <div class="cred-step">
+                    <div class="cred-step-num"></div>
+                    <div class="cred-step-body"><p>Save <span class="cred-file">auth.php</span> and re-upload it. Your new credentials are immediately active. <strong style="color:#e8a93c">Never expose auth.php publicly.</strong></p></div>
+                </div>
+            </div>
+            <div class="hash-gen">
+                <h4>&#128272; Password Hash Generator</h4>
+                <div class="hash-gen-row">
+                    <input type="password" id="hash-input" placeholder="Enter new password (min. 6 chars)" autocomplete="new-password">
+                    <button class="hash-gen-btn" onclick="generateHash()">Generate Hash</button>
+                </div>
+                <div class="hash-result" id="hash-result">
+                    <label>Your bcrypt hash — copy this into auth.php:</label>
+                    <div class="hash-result-val" id="hash-val"></div>
+                    <button class="hash-copy-btn" onclick="copyHash()">&#128203; Copy Hash</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     VIEW MODE OVERLAY
+     ════════════════════════════════════════════ -->
+<div id="view-overlay">
+    <div class="view-banner">
+        <div class="view-banner-info">
+            <div class="view-banner-dot"></div>
+            &#128065; Preview Mode &mdash; this is exactly what customers see
+        </div>
+        <button class="view-close-btn" onclick="closePreview()">&#10005; Exit Preview</button>
+    </div>
+    <div class="view-content">
+        <?php
+        $view_cats = [];
+        foreach ($items as $it) {
+            if ($it['is_visible']) $view_cats[$it['category']][] = $it;
+        }
+        if (empty($view_cats)): ?>
+        <div class="view-empty"><span>&#127869;&#65039;</span><p>No visible items to preview. Enable some items first.</p></div>
+        <?php else:
+            foreach ($view_cats as $cat => $cat_items): ?>
+            <div class="view-cat-title"><?= htmlspecialchars($cat) ?></div>
+            <div class="view-grid">
+                <?php foreach ($cat_items as $it): ?>
+                <div class="view-card">
+                    <img class="view-card-img" src="<?= htmlspecialchars($it['image_path']) ?>" alt="<?= htmlspecialchars($it['name']) ?>" onerror="this.src='../Image_Content/image.svg'">
+                    <div class="view-card-body">
+                        <div class="view-card-top">
+                            <div class="view-card-name"><?= htmlspecialchars($it['name']) ?></div>
+                            <div class="view-card-price">&#8377;<?= number_format($it['price'], 2) ?></div>
+                        </div>
+                        <div class="view-card-desc"><?= htmlspecialchars($it['description']) ?></div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            <?php endforeach;
+        endif; ?>
     </div>
 </div>
 
@@ -902,6 +1396,103 @@ function showToast(msg, ok) {
     ">${ok ? '✅' : '⚠️'} ${msg}</div>`;
     document.body.appendChild(wrap);
     setTimeout(() => wrap.remove(), 3500);
+}
+</script>
+
+<script>
+/* ── Collapsible section toggle ─────────────────────────── */
+function toggleSection(id) {
+    document.getElementById(id).classList.toggle('open');
+}
+
+/* ── View Mode ───────────────────────────────────────────── */
+function openPreview() {
+    document.getElementById('view-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+function closePreview() {
+    document.getElementById('view-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && document.getElementById('view-overlay').classList.contains('open')) {
+        closePreview();
+    }
+});
+
+/* ── Page visibility toggle ─────────────────────────────── */
+function togglePage(btn) {
+    const page  = btn.dataset.page;
+    const lbl   = btn.querySelector('.tog-lbl');
+    const isOn  = btn.classList.contains('tog-on');
+    btn.disabled = true;
+
+    const fd = new FormData();
+    fd.append('action',     'toggle_page');
+    fd.append('page',       page);
+    fd.append('csrf_token', '<?= csrf_token() ?>');
+
+    fetch('admin_actions.php', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: fd
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (!data.ok) throw new Error(data.msg || 'Server error');
+        if (data.visible) {
+            btn.classList.replace('tog-off', 'tog-on');
+            lbl.textContent = 'Visible';
+            showToast(page.charAt(0).toUpperCase() + page.slice(1) + ' page is now visible.', true);
+        } else {
+            btn.classList.replace('tog-on', 'tog-off');
+            lbl.textContent = 'Hidden';
+            showToast(page.charAt(0).toUpperCase() + page.slice(1) + ' page is now hidden.', false);
+        }
+    })
+    .catch(err => showToast('Failed: ' + err.message, false))
+    .finally(() => { btn.disabled = false; });
+}
+
+/* ── Hash generator ─────────────────────────────────────── */
+function generateHash() {
+    const pw = document.getElementById('hash-input').value;
+    if (pw.length < 6) { showToast('Password must be at least 6 characters.', false); return; }
+
+    const fd = new FormData();
+    fd.append('action',     'generate_hash');
+    fd.append('password',   pw);
+    fd.append('csrf_token', '<?= csrf_token() ?>');
+
+    fetch('admin_actions.php', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: fd
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (!data.ok) throw new Error(data.msg || 'Server error');
+        document.getElementById('hash-val').textContent = data.hash;
+        document.getElementById('hash-result').style.display = 'block';
+        showToast('Hash generated! Copy it into auth.php.', true);
+    })
+    .catch(err => showToast('Error: ' + err.message, false));
+}
+
+function copyHash() {
+    const hash = document.getElementById('hash-val').textContent;
+    if (!hash) return;
+    navigator.clipboard.writeText(hash)
+        .then(() => showToast('Hash copied to clipboard!', true))
+        .catch(() => {
+            /* Fallback for non-HTTPS */
+            const ta = document.createElement('textarea');
+            ta.value = hash;
+            document.body.appendChild(ta);
+            ta.select(); document.execCommand('copy');
+            document.body.removeChild(ta);
+            showToast('Hash copied!', true);
+        });
 }
 </script>
 

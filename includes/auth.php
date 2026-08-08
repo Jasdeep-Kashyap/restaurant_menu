@@ -18,19 +18,19 @@
 
 // ── Credential store ──────────────────────────────────────────
 const AUTH_USERS = [
-    'Dunes_canteen' => [
+    'Admin' => [
         'hash' => '$2y$10$NcbYJK6h3A8K7yqfXnWen.lOBUS9KG8mT7/Ud5QugLG.1NmUzmNRK',
         'role' => 'admin',
     ],
     'viewer' => [
-        'hash' => '$2y$10$jBJaIG0cCCseB4NNsduUi.zI2/P31GTcyiuM1G39hqbToqS.jLyqa',
+        'hash' => '$2y$10$EsSB7u8FUoC9adoptFKUGOEJTda.B0geSMqp9DKKKTeYkJ0mbfsmq',
         'role' => 'viewer',
     ],
 ];
 
 // Brute-force settings
-const AUTH_MAX_ATTEMPTS  = 5;
-const AUTH_LOCKOUT_SECS  = 300; // 5 minutes
+const AUTH_MAX_ATTEMPTS = 5;
+const AUTH_LOCKOUT_SECS = 300; // 5 minutes
 
 // ── Session Helpers ───────────────────────────────────────────
 
@@ -38,12 +38,13 @@ const AUTH_LOCKOUT_SECS  = 300; // 5 minutes
  * Configure secure cookie parameters BEFORE calling session_start().
  * Must be called once, before any output.
  */
-function auth_set_cookie_params(): void {
-    $secure   = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+function auth_set_cookie_params(): void
+{
+    $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
     session_set_cookie_params([
         'lifetime' => 0,
-        'path'     => '/',
-        'secure'   => $secure,   // HTTPS-only when available
+        'path' => '/',
+        'secure' => $secure,   // HTTPS-only when available
         'httponly' => true,       // No JavaScript access
         'samesite' => 'Strict',   // No cross-site sending
     ]);
@@ -52,7 +53,8 @@ function auth_set_cookie_params(): void {
 /**
  * Start session safely (idempotent). Applies secure cookie params first.
  */
-function auth_session_start(): void {
+function auth_session_start(): void
+{
     if (session_status() === PHP_SESSION_NONE) {
         auth_set_cookie_params();
         session_start();
@@ -64,7 +66,8 @@ function auth_session_start(): void {
 /**
  * Return the current session CSRF token, generating one if absent.
  */
-function csrf_token(): string {
+function csrf_token(): string
+{
     auth_session_start();
     if (empty($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -76,7 +79,8 @@ function csrf_token(): string {
  * Verify the CSRF token submitted in a POST request.
  * Terminates with HTTP 403 if invalid.
  */
-function csrf_verify(): void {
+function csrf_verify(): void
+{
     $submitted = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
     if (!hash_equals(csrf_token(), $submitted)) {
         http_response_code(403);
@@ -97,9 +101,10 @@ function csrf_verify(): void {
  * Check if the given username is currently locked out.
  * Returns true if locked, false if allowed.
  */
-function auth_is_locked(string $username): bool {
+function auth_is_locked(string $username): bool
+{
     auth_session_start();
-    $key  = 'bf_' . md5($username);
+    $key = 'bf_' . md5($username);
     $data = $_SESSION[$key] ?? null;
     if (!$data) {
         return false;
@@ -118,9 +123,10 @@ function auth_is_locked(string $username): bool {
 /**
  * Return remaining lockout seconds for a username (0 if not locked).
  */
-function auth_lockout_remaining(string $username): int {
+function auth_lockout_remaining(string $username): int
+{
     auth_session_start();
-    $key  = 'bf_' . md5($username);
+    $key = 'bf_' . md5($username);
     $data = $_SESSION[$key] ?? null;
     if (!$data || $data['attempts'] < AUTH_MAX_ATTEMPTS) {
         return 0;
@@ -132,14 +138,17 @@ function auth_lockout_remaining(string $username): int {
 /**
  * Record a failed login attempt for rate-limiting purposes.
  */
-function auth_record_failure(string $username): void {
+function auth_record_failure(string $username): void
+{
     auth_session_start();
-    $key  = 'bf_' . md5($username);
+    $key = 'bf_' . md5($username);
     $data = $_SESSION[$key] ?? ['attempts' => 0, 'last_attempt' => 0];
 
     // Reset counter if previous lockout expired
-    if ($data['attempts'] >= AUTH_MAX_ATTEMPTS &&
-        (time() - $data['last_attempt']) >= AUTH_LOCKOUT_SECS) {
+    if (
+        $data['attempts'] >= AUTH_MAX_ATTEMPTS &&
+        (time() - $data['last_attempt']) >= AUTH_LOCKOUT_SECS
+    ) {
         $data = ['attempts' => 0, 'last_attempt' => 0];
     }
 
@@ -151,7 +160,8 @@ function auth_record_failure(string $username): void {
 /**
  * Clear the failure record for a username (called on successful login).
  */
-function auth_clear_failures(string $username): void {
+function auth_clear_failures(string $username): void
+{
     auth_session_start();
     unset($_SESSION['bf_' . md5($username)]);
 }
@@ -162,7 +172,8 @@ function auth_clear_failures(string $username): void {
  * Attempt login. Returns role string on success, false on failure.
  * Enforces brute-force lockout.
  */
-function auth_attempt(string $username, string $password): string|false {
+function auth_attempt(string $username, string $password): string|false
+{
     if (auth_is_locked($username)) {
         return false;
     }
@@ -189,14 +200,15 @@ function auth_attempt(string $username, string $password): string|false {
  *
  * @param string[] $allowed_roles  e.g. ['admin'] or ['admin','viewer']
  */
-function auth_require(array $allowed_roles = ['admin', 'viewer']): void {
+function auth_require(array $allowed_roles = ['admin', 'viewer']): void
+{
     auth_session_start();
 
     $logged_in = !empty($_SESSION['auth_user']) && !empty($_SESSION['auth_role']);
 
     if (!$logged_in || !in_array($_SESSION['auth_role'], $allowed_roles, true)) {
         // Build a safe same-origin return URL (fix MED-3: reject //evil.com pattern)
-        $raw    = $_SERVER['REQUEST_URI'] ?? '';
+        $raw = $_SERVER['REQUEST_URI'] ?? '';
         $parsed = parse_url($raw);
         // Only allow relative paths — reject anything with a host component
         $safe_return = (isset($parsed['path']) && !isset($parsed['host']))
@@ -211,7 +223,8 @@ function auth_require(array $allowed_roles = ['admin', 'viewer']): void {
 /**
  * Return the currently authenticated user's role, or null if not logged in.
  */
-function auth_role(): ?string {
+function auth_role(): ?string
+{
     auth_session_start();
     return $_SESSION['auth_role'] ?? null;
 }
@@ -219,7 +232,8 @@ function auth_role(): ?string {
 /**
  * Return the currently authenticated username, or null if not logged in.
  */
-function auth_user(): ?string {
+function auth_user(): ?string
+{
     auth_session_start();
     return $_SESSION['auth_user'] ?? null;
 }
@@ -227,13 +241,21 @@ function auth_user(): ?string {
 /**
  * Destroy the session and redirect to login.
  */
-function auth_logout(): void {
+function auth_logout(): void
+{
     auth_session_start();
     $_SESSION = [];
     if (ini_get('session.use_cookies')) {
         $p = session_get_cookie_params();
-        setcookie(session_name(), '', time() - 3600,
-            $p['path'], $p['domain'], $p['secure'], $p['httponly']);
+        setcookie(
+            session_name(),
+            '',
+            time() - 3600,
+            $p['path'],
+            $p['domain'],
+            $p['secure'],
+            $p['httponly']
+        );
     }
     session_destroy();
     header('Location: ../Backend/login.php?logged_out=1');

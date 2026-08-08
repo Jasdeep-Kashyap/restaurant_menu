@@ -17,6 +17,9 @@ ErrorDocument 500 /img/restaurant_menu/errors/500.php
     # Block .git and other hidden directories
     RewriteRule ^\.git(/.*)?$ - [F,L]
     RewriteRule ^\.env$       - [F,L]
+
+    # Redirect old static surprise page to PHP version
+    RewriteRule ^Frontend/suprise\.html$ /img/restaurant_menu/Frontend/suprise.php [R=301,L]
 </IfModule>
 
 # Also block via FilesMatch for extra safety
@@ -31,7 +34,8 @@ ErrorDocument 500 /img/restaurant_menu/errors/500.php
 </FilesMatch>
 
 # ── Block direct access to sensitive include files ─────────────
-<FilesMatch "\.(env|sql|log|bak|swp)$">
+# Block access to sensitive files including page settings
+<FilesMatch "\.(env|sql|log|bak|swp|json)$">
     <IfModule mod_authz_core.c>
         Require all denied
     </IfModule>
