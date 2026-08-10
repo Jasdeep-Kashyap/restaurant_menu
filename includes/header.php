@@ -45,8 +45,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
                         class="<?= $current_page === 'about.php' ? 'active' : '' ?>">About</a></li>
                 <li><a href="../Frontend/contact.php"
                         class="<?= $current_page === 'contact.php' ? 'active' : '' ?>">Contact</a></li>
-                <li><a href="../Backend/menu.php" class="<?= $current_page === 'menu.php' ? 'active' : '' ?>">Menu</a>
+
+                <li><a href="../Backend/menu.php" class="<?= $current_page === 'menu.php' ? 'active' : '' ?>">Menu
+                    </a>
                 </li>
+                <li><a href="../Frontend/reservations.php"
+                        class="<?= $current_page === 'reservations.php' ? 'active' : '' ?>">Reserve</a></li>
             </ul>
         </div>
     </nav>

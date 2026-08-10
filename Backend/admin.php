@@ -819,6 +819,33 @@ $page_settings = file_exists($page_settings_file)
         </div>
     </div>
 
+    <!-- Table Reservations shortcut card -->
+    <div style="
+        display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+        background:rgba(99,102,241,0.07);border:1px solid rgba(99,102,241,0.22);border-radius:16px;
+        padding:18px 24px;margin-bottom:22px;
+    ">
+        <div style="display:flex;align-items:center;gap:14px;">
+            <div style="
+                font-size:1.4rem;width:44px;height:44px;border-radius:12px;flex-shrink:0;
+                background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.25);
+                display:flex;align-items:center;justify-content:center;
+            ">🪑</div>
+            <div>
+                <div style="font-size:0.98rem;font-weight:700;color:#f0f1f3;">Table Reservations</div>
+                <div style="font-size:0.78rem;color:#7a8090;margin-top:2px;">Manage floor plan status in real time</div>
+            </div>
+        </div>
+        <a href="table_admin.php" style="
+            display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
+            background:rgba(99,102,241,0.14);border:1px solid rgba(99,102,241,0.35);
+            color:#818cf8;font-family:'Outfit',sans-serif;font-size:0.85rem;font-weight:700;
+            padding:9px 20px;border-radius:50px;text-decoration:none;transition:0.2s;
+        " onmouseover="this.style.background='rgba(99,102,241,0.24)'" onmouseout="this.style.background='rgba(99,102,241,0.14)'">
+            Open Table Manager →
+        </a>
+    </div>
+
     <!-- Toolbar -->
     <div class="adm-toolbar">
         <a href="menu.php" class="back-link">← Back to Menu</a>

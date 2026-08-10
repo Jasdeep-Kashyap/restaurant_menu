@@ -107,3 +107,52 @@ CREATE TABLE IF NOT EXISTS order_counter (
     next_number SMALLINT UNSIGNED NOT NULL DEFAULT 1
 );
 INSERT IGNORE INTO order_counter (id, next_number) VALUES (1, 1);
+
+-- ============================================================
+-- Restaurant Table Reservations
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS `tables` (
+    id       INT AUTO_INCREMENT PRIMARY KEY,
+    name     VARCHAR(30)  NOT NULL,
+    zone     ENUM('Main','Patio') NOT NULL,
+    capacity TINYINT UNSIGNED NOT NULL,
+    status   ENUM('FREE','RESERVED') NOT NULL DEFAULT 'FREE',
+    x        TINYINT UNSIGNED NOT NULL,
+    y        TINYINT UNSIGNED NOT NULL
+);
+
+-- Seed 10 tables (safe to re-run)
+INSERT IGNORE INTO `tables` (id, name, zone, capacity, status, x, y) VALUES
+(1,  'T1',  'Main',  2, 'FREE',     1, 1),
+(2,  'T2',  'Main',  4, 'RESERVED', 3, 1),
+(3,  'T3',  'Main',  6, 'FREE',     5, 1),
+(4,  'T4',  'Main',  4, 'RESERVED', 1, 3),
+(5,  'T5',  'Main',  2, 'FREE',     3, 3),
+(6,  'T6',  'Main',  6, 'FREE',     5, 3),
+(7,  'T7',  'Patio', 2, 'FREE',     1, 1),
+(8,  'T8',  'Patio', 4, 'RESERVED', 3, 1),
+(9,  'T9',  'Patio', 4, 'FREE',     1, 3),
+(10, 'T10', 'Patio', 6, 'FREE',     3, 3);
+
+-- ============================================================
+-- Time-Bound Table Reservations & Cancellation System
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS `reservations` (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    table_id INT NOT NULL,
+    customer_name VARCHAR(120) NOT NULL,
+    customer_email VARCHAR(255) NOT NULL,
+    customer_phone VARCHAR(30) NOT NULL,
+    res_date DATE NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    duration_hours TINYINT UNSIGNED NOT NULL DEFAULT 2,
+    guests TINYINT UNSIGNED NOT NULL DEFAULT 2,
+    status ENUM('CONFIRMED', 'CANCELLED', 'EXPIRED') NOT NULL DEFAULT 'CONFIRMED',
+    cancellation_token VARCHAR(64) NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (table_id) REFERENCES `tables`(id) ON DELETE CASCADE
+);
+
