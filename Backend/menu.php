@@ -9,51 +9,119 @@ require_once '../includes/auth.php'; // For csrf_token() helper
 $page_title = 'Our Menu — La Maison';
 $page_desc = 'Browse La Maison\'s curated fine-dining menu — starters, mains, desserts, and drinks. Order online.';
 
-/* ── Cart Actions (PHP-based, no JS) ─────────────────────── */
+/* ── Cart Actions ─────────────────────────────────────────── */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['cart_action'] ?? '';
 
-    if ($action === 'add') {
+    if (in_array($action, ['add', 'remove', 'clear'])) {
         $id = $_POST['item_id'] ?? '';
         $name = $_POST['item_name'] ?? '';
         $price = floatval($_POST['item_price'] ?? 0);
-        if ($id && $name && $price > 0) {
+        
+        if (!isset($_SESSION['cart'])) {
+            $_SESSION['cart'] = [];
+        }
+
+        if ($action === 'add' && $id && $name && $price > 0) {
             if (!isset($_SESSION['cart'][$id])) {
                 $_SESSION['cart'][$id] = [
-                    'id' => $id,
-                    'name' => $name,
-                    'price' => $price,
-                    'qty' => 1,
+                    'id' => $id, 'name' => $name, 'price' => $price, 'qty' => 1
                 ];
             } else {
                 $_SESSION['cart'][$id]['qty'] += 1;
             }
-        }
-        // Redirect to prevent form resubmission (PRG pattern)
-        $cat = $_POST['current_category'] ?? 'all';
-        header('Location: menu.php?cat=' . urlencode($cat) . '#card-' . urlencode($id));
-        exit;
-    }
-
-    if ($action === 'remove') {
-        $id = $_POST['item_id'] ?? '';
-        if (isset($_SESSION['cart'][$id])) {
-            $_SESSION['cart'][$id]['qty'] -= 1;
-            if ($_SESSION['cart'][$id]['qty'] <= 0) {
-                unset($_SESSION['cart'][$id]);
+        } elseif ($action === 'remove' && $id) {
+            if (isset($_SESSION['cart'][$id])) {
+                $_SESSION['cart'][$id]['qty'] -= 1;
+                if ($_SESSION['cart'][$id]['qty'] <= 0) {
+                    unset($_SESSION['cart'][$id]);
+                }
             }
+        } elseif ($action === 'clear') {
+            $_SESSION['cart'] = [];
         }
-        header('Location: menu.php?cat=' . urlencode($_POST['current_category'] ?? 'all'));
-        exit;
-    }
 
-    if ($action === 'clear') {
-        $_SESSION['cart'] = [];
-        header('Location: menu.php');
+        $is_ajax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+        
+        if ($is_ajax) {
+            $cart_count = array_sum(array_column($_SESSION['cart'], 'qty'));
+            $cart_total = 0;
+            foreach ($_SESSION['cart'] as $ci) {
+                $cart_total += $ci['price'] * $ci['qty'];
+            }
+            
+            $in_cart = isset($_SESSION['cart'][$id]);
+            $cart_qty = $in_cart ? $_SESSION['cart'][$id]['qty'] : 0;
+            $active_cat = htmlspecialchars($_POST['current_category'] ?? 'all', ENT_QUOTES);
+            
+            if ($in_cart) {
+                $card_actions_html = '
+                <div class="qty-controls">
+                    <form method="POST" action="menu.php" class="ajax-cart-form">
+                        <input type="hidden" name="cart_action" value="remove">
+                        <input type="hidden" name="item_id" value="'.htmlspecialchars($id).'">
+                        <input type="hidden" name="item_name" value="'.htmlspecialchars($name, ENT_QUOTES).'">
+                        <input type="hidden" name="item_price" value="'.$price.'">
+                        <input type="hidden" name="current_category" value="'.$active_cat.'">
+                        <button type="submit" class="qty-btn" title="Remove one">−</button>
+                    </form>
+                    <span class="qty-display">'.$cart_qty.'</span>
+                    <form method="POST" action="menu.php" class="ajax-cart-form">
+                        <input type="hidden" name="cart_action" value="add">
+                        <input type="hidden" name="item_id" value="'.htmlspecialchars($id).'">
+                        <input type="hidden" name="item_name" value="'.htmlspecialchars($name, ENT_QUOTES).'">
+                        <input type="hidden" name="item_price" value="'.$price.'">
+                        <input type="hidden" name="current_category" value="'.$active_cat.'">
+                        <button type="submit" class="qty-btn" title="Add one">+</button>
+                    </form>
+                </div>';
+            } else {
+                $card_actions_html = '
+                <form method="POST" action="menu.php" class="ajax-cart-form">
+                    <input type="hidden" name="cart_action" value="add">
+                    <input type="hidden" name="item_id" value="'.htmlspecialchars($id).'">
+                    <input type="hidden" name="item_name" value="'.htmlspecialchars($name, ENT_QUOTES).'">
+                    <input type="hidden" name="item_price" value="'.$price.'">
+                    <input type="hidden" name="current_category" value="'.$active_cat.'">
+                    <button type="submit" class="add-btn">
+                        <span class="btn-icon">＋</span>
+                        <span class="btn-text">Add to Order</span>
+                    </button>
+                </form>';
+            }
+
+            $cart_items_html = '';
+            foreach ($_SESSION['cart'] as $ci) {
+                $cart_items_html .= '<li>
+                    <span class="cart-item-name">'.htmlspecialchars($ci['name']).'</span>
+                    <span class="cart-item-qty">×'.$ci['qty'].'</span>
+                    <span class="cart-item-price">₹'.number_format($ci['price'] * $ci['qty'], 2).'</span>
+                </li>';
+            }
+            
+            $items_json = json_encode(array_values(array_map(function ($ci) {
+                return $ci['name'] . ' (×' . $ci['qty'] . ')';
+            }, $_SESSION['cart'])));
+
+            header('Content-Type: application/json');
+            echo json_encode([
+                'cart_count' => $cart_count,
+                'cart_total' => '₹' . number_format($cart_total, 2),
+                'cart_items_html' => $cart_items_html,
+                'card_actions_html' => $card_actions_html,
+                'item_id' => $id,
+                'items_json' => $items_json
+            ]);
+            exit;
+        }
+
+        // Fallback for non-AJAX (PRG pattern)
+        $cat = $_POST['current_category'] ?? 'all';
+        $anchor = $id ? '#card-' . urlencode($id) : '';
+        header('Location: menu.php?cat=' . urlencode($cat) . $anchor);
         exit;
     }
 }
-
 // Initialize cart if empty
 if (!isset($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
@@ -172,17 +240,19 @@ include '../includes/header.php';
                     </div>
                     <p class="card-desc"><?= htmlspecialchars($item['desc']) ?></p>
 
-                    <div class="card-actions">
+                    <div class="card-actions" id="actions-<?= htmlspecialchars($item['id']) ?>">
                         <?php if ($in_cart): ?>
                             <div class="qty-controls">
-                                <form method="POST" action="menu.php">
+                                <form method="POST" action="menu.php" class="ajax-cart-form">
                                     <input type="hidden" name="cart_action" value="remove">
                                     <input type="hidden" name="item_id" value="<?= htmlspecialchars($item['id']) ?>">
+                                    <input type="hidden" name="item_name" value="<?= htmlspecialchars($item['name'], ENT_QUOTES) ?>">
+                                    <input type="hidden" name="item_price" value="<?= $item['price'] ?>">
                                     <input type="hidden" name="current_category" value="<?= htmlspecialchars($active_cat) ?>">
                                     <button type="submit" class="qty-btn" title="Remove one">−</button>
                                 </form>
                                 <span class="qty-display"><?= $cart_qty ?></span>
-                                <form method="POST" action="menu.php">
+                                <form method="POST" action="menu.php" class="ajax-cart-form">
                                     <input type="hidden" name="cart_action" value="add">
                                     <input type="hidden" name="item_id" value="<?= htmlspecialchars($item['id']) ?>">
                                     <input type="hidden" name="item_name"
@@ -193,7 +263,7 @@ include '../includes/header.php';
                                 </form>
                             </div>
                         <?php else: ?>
-                            <form method="POST" action="menu.php">
+                            <form method="POST" action="menu.php" class="ajax-cart-form">
                                 <input type="hidden" name="cart_action" value="add">
                                 <input type="hidden" name="item_id" value="<?= htmlspecialchars($item['id']) ?>">
                                 <input type="hidden" name="item_name"
@@ -213,21 +283,20 @@ include '../includes/header.php';
     </div>
 </main>
 
-<!-- ── Cart Pill + Drawer (shown when items exist) ─────────── -->
-<?php if ($cart_count > 0): ?>
+<!-- ── Cart Pill + Drawer ─────────── -->
     <input type="checkbox" id="cartToggle">
-    <div class="cart-pill-wrap">
+    <div class="cart-pill-wrap" id="cartPillWrap" style="display: <?= $cart_count > 0 ? 'flex' : 'none' ?>;">
 
         <!-- Drawer (above the pill) -->
         <div class="cart-drawer">
             <div class="cart-drawer-inner">
                 <div class="cart-info">
-                    <span class="cart-count-badge"><?= $cart_count ?></span>
+                    <span class="cart-count-badge" id="cartCountBadge"><?= $cart_count ?></span>
                     <span class="cart-label">Your Order</span>
-                    <span class="cart-total">₹<?= number_format($cart_total, 2) ?></span>
+                    <span class="cart-total" id="cartTotal">₹<?= number_format($cart_total, 2) ?></span>
                 </div>
 
-                <ul class="cart-items-list">
+                <ul class="cart-items-list" id="cartItemsList">
                     <?php foreach ($cart as $ci): ?>
                         <li>
                             <span class="cart-item-name"><?= htmlspecialchars($ci['name']) ?></span>
@@ -240,7 +309,7 @@ include '../includes/header.php';
                 <!-- ═══ MULTI-STEP CHECKOUT ═══════════════════════ -->
                 <form class="order-form" id="checkoutForm" method="POST" action="process_order.php">
                     <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
-                    <input type="hidden" name="items_json" value='<?= htmlspecialchars(json_encode(array_map(function ($ci) {
+                    <input type="hidden" name="items_json" id="hiddenItemsJson" value='<?= htmlspecialchars(json_encode(array_map(function ($ci) {
                         return $ci['name'] . ' (×' . $ci['qty'] . ')';
                     }, $cart)), ENT_QUOTES) ?>'>
                     <!-- total_price removed: server recalculates from $_SESSION['cart'] -->
@@ -326,14 +395,13 @@ include '../includes/header.php';
         </div>
 
         <!-- Pill toggle button -->
-        <label for="cartToggle" class="cart-pill" id="cartPill" aria-label="Toggle cart">
+        <label for="cartToggle" class="cart-pill" aria-label="Toggle cart">
             <span> Items in Cart</span>
-            <span class="pill-count"><?= $cart_count ?></span>
+            <span class="pill-count" id="pillCount"><?= $cart_count ?></span>
             <span class="pill-chevron">▲</span>
         </label>
 
     </div>
-<?php endif; ?>
 
 <!-- ── Checkout Inline Styles ──────────────────────────────── -->
 <style>
@@ -672,81 +740,146 @@ include '../includes/header.php';
     schedToggle.addEventListener('click', toggleSchedule);
     schedToggle.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggleSchedule(); } });
 
-    // Step 1 → Step 2
-    btnToPayment.addEventListener('click', function() {
-        if (!custName.value.trim()) {
-            custName.focus();
-            custName.classList.add('ck-shake');
-            setTimeout(() => custName.classList.remove('ck-shake'), 350);
-            return;
-        }
-
-        if (scheduling) {
-            if (!schedDate.value || !schedTime.value) {
-                schedFields.classList.add('ck-shake');
-                setTimeout(() => schedFields.classList.remove('ck-shake'), 350);
+    if (btnToPayment) {
+        btnToPayment.addEventListener('click', function() {
+            if (!custName.value.trim()) {
+                custName.focus();
+                custName.classList.add('ck-shake');
+                setTimeout(() => custName.classList.remove('ck-shake'), 350);
                 return;
             }
-            hiddenDate.value = schedDate.value;
-            hiddenTime.value = schedTime.value;
 
-            const dt = new Date(schedDate.value + 'T' + schedTime.value);
-            const opts = { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true };
-            upiSchedNote.textContent = '📅 Scheduled: ' + dt.toLocaleDateString('en-IN', opts);
-            upiSchedNote.style.display = 'block';
-        } else {
-            hiddenDate.value = '';
-            hiddenTime.value = '';
-            upiSchedNote.style.display = 'none';
-        }
+            if (scheduling) {
+                if (!schedDate.value || !schedTime.value) {
+                    schedFields.classList.add('ck-shake');
+                    setTimeout(() => schedFields.classList.remove('ck-shake'), 350);
+                    return;
+                }
+                hiddenDate.value = schedDate.value;
+                hiddenTime.value = schedTime.value;
 
-        step1.style.display = 'none';
-        step2.style.display = 'block';
-    });
+                const dt = new Date(schedDate.value + 'T' + schedTime.value);
+                const opts = { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true };
+                upiSchedNote.textContent = '📅 Scheduled: ' + dt.toLocaleDateString('en-IN', opts);
+                upiSchedNote.style.display = 'block';
+            } else {
+                hiddenDate.value = '';
+                hiddenTime.value = '';
+                upiSchedNote.style.display = 'none';
+            }
+
+            step1.style.display = 'none';
+            step2.style.display = 'block';
+        });
+    }
 
     // Back to Step 1
-    btnBack.addEventListener('click', function() {
-        step2.style.display = 'none';
-        step1.style.display = 'block';
-    });
+    if (btnBack) {
+        btnBack.addEventListener('click', function() {
+            step2.style.display = 'none';
+            step1.style.display = 'block';
+        });
+    }
 
     // Confirm Payment with UTR Verification sequence
-    btnConfirm.addEventListener('click', function() {
-        const utrVal = utrInput.value.trim();
-        
-        // Format check: minimum 8 alphanumeric chars, ideally 12 digits
-        if (!utrVal || utrVal.length < 8) {
-            utrInput.focus();
-            utrInput.classList.add('ck-shake');
-            utrInput.style.borderColor = '#ff4757';
-            setTimeout(() => utrInput.classList.remove('ck-shake'), 350);
-            return;
-        }
-
-        btnConfirm.disabled = true;
-        btnBack.disabled = true;
-        bankStatus.style.display = 'flex';
-        bankStatusMsg.textContent = 'Connecting to NPCI / Bank Gateway…';
-
-        // Simulated live bank verification steps
-        setTimeout(() => {
-            bankStatusMsg.textContent = `Verifying UTR #${utrVal} with Bank…`;
-        }, 1000);
-
-        setTimeout(() => {
-            bankSpinner.style.display = 'none';
-            bankStatusMsg.textContent = 'Payment Verified & Approved! ✓';
-            bankStatus.style.background = 'rgba(46,213,115,.2)';
+    if (btnConfirm) {
+        btnConfirm.addEventListener('click', function() {
+            const utrVal = utrInput.value.trim();
             
-            paymentField.value = '1';
-            utrHidden.value = utrVal;
+            // Format check: minimum 8 alphanumeric chars, ideally 12 digits
+            if (!utrVal || utrVal.length < 8) {
+                utrInput.focus();
+                utrInput.classList.add('ck-shake');
+                utrInput.style.borderColor = '#ff4757';
+                setTimeout(() => utrInput.classList.remove('ck-shake'), 350);
+                return;
+            }
+
+            btnConfirm.disabled = true;
+            btnBack.disabled = true;
+            bankStatus.style.display = 'flex';
+            bankStatusMsg.textContent = 'Connecting to NPCI / Bank Gateway…';
+
+            // Simulated live bank verification steps
+            setTimeout(() => {
+                bankStatusMsg.textContent = `Verifying UTR #${utrVal} with Bank…`;
+            }, 1000);
 
             setTimeout(() => {
-                form.submit();
-            }, 600);
-        }, 2200);
-    });
+                bankSpinner.style.display = 'none';
+                bankStatusMsg.textContent = 'Payment Verified & Approved! ✓';
+                bankStatus.style.background = 'rgba(46,213,115,.2)';
+                
+                paymentField.value = '1';
+                utrHidden.value = utrVal;
+
+                setTimeout(() => {
+                    form.submit();
+                }, 600);
+            }, 2200);
+        });
+    }
 })();
+
+// ── AJAX Cart Logic ─────────────────────────────────────────
+document.addEventListener('submit', function(e) {
+    if (e.target.classList.contains('ajax-cart-form')) {
+        e.preventDefault();
+        
+        const form = e.target;
+        
+        // Visual feedback (optional but nice for smoothness)
+        const btn = form.querySelector('button[type="submit"]');
+        if (btn) btn.style.opacity = '0.5';
+        
+        fetch('menu.php', {
+            method: 'POST',
+            body: new FormData(form),
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (btn) btn.style.opacity = '1';
+            
+            // Update specific card buttons
+            const actionsContainer = document.getElementById('actions-' + data.item_id);
+            if (actionsContainer) actionsContainer.innerHTML = data.card_actions_html;
+            
+            // Update cart bubble and total
+            const countBadge = document.getElementById('cartCountBadge');
+            const totalText = document.getElementById('cartTotal');
+            const pillCount = document.getElementById('pillCount');
+            
+            if (countBadge) countBadge.textContent = data.cart_count;
+            if (totalText) totalText.textContent = data.cart_total;
+            if (pillCount) pillCount.textContent = data.cart_count;
+            
+            // Update items list inside drawer
+            const itemsList = document.getElementById('cartItemsList');
+            if (itemsList) itemsList.innerHTML = data.cart_items_html;
+            
+            // Update hidden checkout JSON
+            const hiddenJson = document.getElementById('hiddenItemsJson');
+            if (hiddenJson) hiddenJson.value = data.items_json;
+            
+            // Show or hide the cart pill based on count
+            const pillWrap = document.getElementById('cartPillWrap');
+            if (pillWrap) {
+                pillWrap.style.display = data.cart_count > 0 ? 'flex' : 'none';
+                if (data.cart_count === 0) {
+                    const toggle = document.getElementById('cartToggle');
+                    if (toggle) toggle.checked = false;
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error updating cart:', error);
+            if (btn) btn.style.opacity = '1';
+        });
+    }
+});
 </script>
 
 <?php include '../includes/footer.php'; ?>

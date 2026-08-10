@@ -1719,7 +1719,7 @@ tbody td:first-child { color: var(--text); font-weight: 500; }
     }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
     .hero { padding: calc(var(--nav-height) + 40px) 20px 50px; }
     .home-hero { padding: calc(var(--nav-height) + 60px) 20px 60px; min-height: 80vh; }
 
@@ -2517,7 +2517,7 @@ tbody td:first-child { color: var(--text); font-weight: 500; }
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 600px) {
     .adm-stats {
         grid-template-columns: 1fr;
     }
@@ -2571,7 +2571,7 @@ tbody td:first-child { color: var(--text); font-weight: 500; }
 }
 
 /* Phone Aspect Ratio & Compact High-Density Boxes (<= 540px) */
-@media (max-width: 540px) {
+@media (max-width: 600px) {
     :root {
         --nav-height: 64px;
     }

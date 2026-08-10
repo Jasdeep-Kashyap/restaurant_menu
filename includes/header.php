@@ -16,7 +16,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <link
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,500&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="../css/style.css?v=2.1">
+    <link rel="stylesheet" href="../css/style.css?v=<?= filemtime(__DIR__ . '/../css/style.css') ?>">
 </head>
 
 <body>
