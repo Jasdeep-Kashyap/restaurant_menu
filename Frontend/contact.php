@@ -10,8 +10,8 @@ if (isset($_ps['contact']) && !$_ps['contact']) {
     exit;
 }
 
-$page_title = 'Contact Us — La Maison';
-$page_desc = 'Get in touch with La Maison. Find our address, opening hours, phone number, or send us a message to book a table.';
+$page_title = 'Contact Us — Obsidian';
+$page_desc = 'Get in touch with Obsidian. Find our address, opening hours, phone number, or send us a message to book a table.';
 
 require_once '../includes/db.php';
 require_once '../includes/auth.php';
@@ -83,7 +83,7 @@ include '../includes/header.php';
             <div class="contact-info-card">
                 <div class="contact-icon">✉️</div>
                 <h3>Email Us</h3>
-                <p>hello@lamaison.com</p>
+                <p>hello@obsidian.com</p>
             </div>
             <div class="contact-info-card">
                 <div class="contact-icon">🕐</div>

@@ -8,7 +8,7 @@ auth_require(['admin']);
 
 require_once '../includes/db.php';
 
-$page_title = 'Table Management — La Maison Admin';
+$page_title = 'Table Management — Obsidian Admin';
 
 // Fetch all tables
 $tables = $pdo->query(
@@ -24,14 +24,43 @@ $patio_cnt= count(array_filter($tables, fn($t) => $t['zone'] === 'Patio'));
 // Auto release expired reservations
 $pdo->exec("UPDATE `reservations` SET status = 'EXPIRED' WHERE status = 'CONFIRMED' AND TIMESTAMP(res_date, start_time) + INTERVAL 15 MINUTE < NOW()");
 
-// Fetch reservations log
+// Fetch reservations log (excluding cancelled)
 $reservations_log = $pdo->query(
     "SELECT r.*, t.name AS table_name, t.zone 
      FROM `reservations` r
      JOIN `tables` t ON r.table_id = t.id
+     WHERE r.status = 'CONFIRMED'
      ORDER BY r.res_date DESC, r.start_time DESC
      LIMIT 50"
 )->fetchAll();
+
+// Map active confirmed reservations per table for hover tooltips
+$table_reservations_map = [];
+$res_map_rows = $pdo->query(
+    "SELECT r.table_id, r.res_date, r.start_time, r.end_time, r.customer_name, r.guests, r.duration_hours
+     FROM `reservations` r
+     WHERE r.status = 'CONFIRMED' AND r.res_date >= CURRENT_DATE()
+     ORDER BY r.res_date ASC, r.start_time ASC"
+)->fetchAll();
+
+foreach ($res_map_rows as $rm) {
+    $tid = (int)$rm['table_id'];
+    $st_fmt  = date('h:i A', strtotime($rm['start_time']));
+    $end_fmt = date('h:i A', strtotime($rm['end_time']));
+    $date_lbl = ($rm['res_date'] === date('Y-m-d')) ? 'Today' : date('M d', strtotime($rm['res_date']));
+    $table_reservations_map[$tid][] = [
+        'time'     => "$st_fmt – $end_fmt",
+        'date'     => $date_lbl,
+        'name'     => $rm['customer_name'],
+        'guests'   => (int)$rm['guests'],
+        'duration' => (float)$rm['duration_hours']
+    ];
+}
+
+$resStatsCheck = $pdo->query("SELECT MAX(id) as max_id, COUNT(id) as cnt FROM `reservations` WHERE status = 'CONFIRMED'")->fetch();
+$initial_max_id = (int)($resStatsCheck['max_id'] ?? 0);
+$initial_res_count = (int)($resStatsCheck['cnt'] ?? 0);
+$initial_table_hash = md5($pdo->query("SELECT GROUP_CONCAT(status ORDER BY id) FROM `tables`")->fetchColumn());
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -226,7 +255,107 @@ $reservations_log = $pdo->query(
         gap: 14px;
         transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
         position: relative;
-        overflow: hidden;
+    }
+
+    /* ── Hover Tooltip for Table Reserved Times ── */
+    .ta-hover-tooltip {
+        position: absolute;
+        bottom: calc(100% + 10px);
+        left: 50%;
+        transform: translateX(-50%) translateY(8px);
+        background: #13161b;
+        border: 1px solid rgba(232,169,60,0.45);
+        border-radius: 14px;
+        padding: 12px 14px;
+        width: 250px;
+        box-shadow: 0 16px 48px rgba(0,0,0,0.85);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.22s cubic-bezier(0.34,1.56,0.64,1), transform 0.22s cubic-bezier(0.34,1.56,0.64,1);
+        z-index: 500;
+        text-align: left;
+    }
+    .ta-hover-tooltip::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 7px;
+        border-style: solid;
+        border-color: rgba(232,169,60,0.45) transparent transparent transparent;
+    }
+    .ta-card:hover .ta-hover-tooltip {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateX(-50%) translateY(0);
+    }
+    .ta-list-name {
+        position: relative;
+    }
+    .ta-list-name:hover .ta-list-tooltip {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateX(0) translateY(0);
+    }
+    .ta-list-tooltip {
+        bottom: auto;
+        top: 100%;
+        left: 0;
+        transform: translateX(0) translateY(8px);
+    }
+    .ta-list-tooltip::after {
+        top: auto;
+        bottom: 100%;
+        left: 20px;
+        transform: none;
+        border-color: transparent transparent rgba(232,169,60,0.45) transparent;
+    }
+    .ta-tt-title {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--gold);
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .ta-tt-empty {
+        font-size: 0.78rem;
+        color: #2ed573;
+        background: rgba(46,213,115,0.08);
+        border: 1px solid rgba(46,213,115,0.22);
+        padding: 7px 10px;
+        border-radius: 8px;
+        text-align: center;
+    }
+    .ta-tt-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        max-height: 180px;
+        overflow-y: auto;
+    }
+    .ta-tt-item {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.09);
+        border-radius: 8px;
+        padding: 7px 10px;
+        font-size: 0.76rem;
+    }
+    .ta-tt-time {
+        font-weight: 700;
+        color: var(--text);
+        display: block;
+        font-size: 0.8rem;
+    }
+    .ta-tt-meta {
+        color: var(--muted);
+        font-size: 0.72rem;
+        margin-top: 2px;
+        display: block;
     }
     .ta-card::before {
         content: '';
@@ -428,6 +557,10 @@ $reservations_log = $pdo->query(
         .ta-grid  { grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .ta-card  { padding: 14px; }
     }
+    @keyframes livePulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50%       { opacity: 0.3; transform: scale(0.7); }
+    }
     </style>
 </head>
 <body>
@@ -436,8 +569,8 @@ $reservations_log = $pdo->query(
 <nav class="main-nav">
     <div class="nav-inner">
         <a href="../index.html" class="nav-logo">
-            <img src="../Image_Content/image.svg" alt="La Maison Logo" class="logo-icon">
-            <span class="logo-text">La Maison</span>
+            <img src="../Image_Content/image.svg" alt="Obsidian Logo" class="logo-icon">
+            <span class="logo-text">Obsidian</span>
         </a>
         <ul class="nav-links" style="display:flex;list-style:none;gap:24px;align-items:center;">
             <li><a href="admin.php" style="color:var(--muted);font-size:0.9rem;font-weight:500;">← Menu Admin</a></li>
@@ -455,7 +588,13 @@ $reservations_log = $pdo->query(
     <div class="ta-title-row">
         <div>
             <div class="ta-title">🪑 Table Management</div>
-            <div class="ta-title-sub">Toggle reservation status in real time</div>
+            <div class="ta-title-sub" style="display:flex;align-items:center;gap:8px;">
+                Toggle reservation status in real time
+                <span id="live-badge" style="display:inline-flex;align-items:center;gap:5px;background:rgba(46,213,115,0.1);border:1px solid rgba(46,213,115,0.3);color:#2ed573;font-size:0.65rem;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;padding:2px 9px;border-radius:50px;">
+                    <span id="live-dot" style="width:7px;height:7px;border-radius:50%;background:#2ed573;animation:livePulse 1.4s ease-in-out infinite;"></span>
+                    LIVE
+                </span>
+            </div>
         </div>
         <a href="../Frontend/reservations.php" target="_blank" class="ta-public-btn">
             🌐 View Public Floor Plan
@@ -526,6 +665,24 @@ $reservations_log = $pdo->query(
              data-status-raw="<?= $status_cls ?>"
              data-capacity="<?= $t['capacity'] ?>"
              data-name="<?= htmlspecialchars($t['name'], ENT_QUOTES) ?>">
+
+            <!-- Hover Tooltip showing all reserved times -->
+            <div class="ta-hover-tooltip">
+                <div class="ta-tt-title">⏰ Reserved Times (<?= htmlspecialchars($t['name']) ?>)</div>
+                <?php $res_slots = $table_reservations_map[$t['id']] ?? []; ?>
+                <?php if (empty($res_slots)): ?>
+                    <div class="ta-tt-empty">✨ No active reservations</div>
+                <?php else: ?>
+                    <div class="ta-tt-list">
+                        <?php foreach ($res_slots as $rs): ?>
+                        <div class="ta-tt-item">
+                            <span class="ta-tt-time">📅 <?= $rs['date'] ?> @ <?= $rs['time'] ?></span>
+                            <span class="ta-tt-meta"><?= htmlspecialchars($rs['name']) ?> (<?= $rs['guests'] ?> guests)</span>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            </div>
             <div class="ta-card-top">
                 <div class="ta-card-name"><?= htmlspecialchars($t['name']) ?></div>
                 <span class="ta-zone-pill <?= $zone_cls ?>"><?= htmlspecialchars($t['zone']) ?></span>
@@ -566,6 +723,7 @@ $reservations_log = $pdo->query(
                         <th>Zone</th>
                         <th>Capacity</th>
                         <th>Status</th>
+                        <th>Bookings Log</th>
                         <th>Toggle</th>
                     </tr>
                 </thead>
@@ -580,13 +738,40 @@ $reservations_log = $pdo->query(
                         data-zone="<?= $t['zone'] ?>"
                         data-status="<?= $status_cls ?>"
                         id="row-<?= $t['id'] ?>">
-                        <td class="ta-list-name"><?= htmlspecialchars($t['name']) ?></td>
+                        <td class="ta-list-name" style="cursor:help;">
+                            <?= htmlspecialchars($t['name']) ?>
+                            <!-- Hover Tooltip showing all reserved times -->
+                            <div class="ta-hover-tooltip ta-list-tooltip">
+                                <div class="ta-tt-title">⏰ Reserved Times (<?= htmlspecialchars($t['name']) ?>)</div>
+                                <?php $res_slots = $table_reservations_map[$t['id']] ?? []; ?>
+                                <?php if (empty($res_slots)): ?>
+                                    <div class="ta-tt-empty">✨ No active reservations</div>
+                                <?php else: ?>
+                                    <div class="ta-tt-list">
+                                        <?php foreach ($res_slots as $rs): ?>
+                                        <div class="ta-tt-item">
+                                            <span class="ta-tt-time">📅 <?= $rs['date'] ?> @ <?= $rs['time'] ?></span>
+                                            <span class="ta-tt-meta"><?= htmlspecialchars($rs['name']) ?> (<?= $rs['guests'] ?> guests)</span>
+                                        </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </td>
                         <td><span class="ta-zone-pill <?= $zone_cls ?>"><?= htmlspecialchars($t['zone']) ?></span></td>
                         <td class="ta-list-cap"><?= $t['capacity'] ?> seats</td>
                         <td>
                             <span class="ta-status-pill ta-status-<?= $status_cls ?>" id="list-pill-<?= $t['id'] ?>">
                                 <?= $t['status'] ?>
                             </span>
+                        </td>
+                        <td>
+                            <button type="button" class="btn-table-res"
+                                    data-id="<?= $t['id'] ?>"
+                                    data-name="<?= htmlspecialchars($t['name'], ENT_QUOTES) ?>"
+                                    style="background:rgba(232,169,60,0.12);border:1px solid rgba(232,169,60,0.3);color:var(--gold);font-size:0.75rem;font-weight:600;padding:4px 10px;border-radius:8px;cursor:pointer;transition:0.2s;">
+                                📋 View Schedule
+                            </button>
                         </td>
                         <td>
                             <button class="adm-toggle-btn <?= $tog_class ?>"
@@ -608,9 +793,9 @@ $reservations_log = $pdo->query(
     <div style="margin-top: 48px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
             <h2 style="font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:10px;">
-                <span>📋</span> Customer Booking Log & Cancellation Pass Keys
+                <span>📋</span> Active Customer Booking Log & Cancellation Pass Keys
             </h2>
-            <span style="font-size:0.78rem;color:var(--muted);">Total Logged: <?= count($reservations_log) ?></span>
+            <span style="font-size:0.78rem;color:var(--muted);">Total Active: <?= count($reservations_log) ?></span>
         </div>
 
         <div class="ta-list-wrap">
@@ -674,6 +859,8 @@ $reservations_log = $pdo->query(
     </div>
 
 </main>
+
+</div>
 
 <!-- Toast -->
 <div class="ta-toast" id="ta-toast" role="status">
@@ -839,6 +1026,26 @@ $reservations_log = $pdo->query(
         toast.classList.add('visible');
         toastTimer = setTimeout(() => toast.classList.remove('visible'), 3500);
     }
+    // ── 5-second live auto-reload (like orders.php) ─────────────────────
+    const LIVE_INTERVAL_MS = 5000;
+    const initialMaxId     = <?= $initial_max_id ?>;
+    const initialResCount  = <?= $initial_res_count ?>;
+    const initialTableHash = "<?= $initial_table_hash ?>";
+
+    async function liveRefresh() {
+        try {
+            const res  = await fetch('check_updates.php');
+            const data = await res.json();
+            if (data.success) {
+                if (data.max_res_id > initialMaxId || data.res_count !== initialResCount || data.table_hash !== initialTableHash) {
+                    window.location.href = window.location.pathname;
+                }
+            }
+        } catch (e) { /* silent - don't disrupt UX on network hiccup */ }
+    }
+
+    setInterval(liveRefresh, LIVE_INTERVAL_MS);
+
 })();
 </script>
 </body>

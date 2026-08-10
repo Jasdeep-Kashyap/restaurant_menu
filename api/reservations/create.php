@@ -23,7 +23,7 @@ $customer_email = filter_var(trim($body['customer_email'] ?? ''), FILTER_VALIDAT
 $customer_phone = trim($body['customer_phone'] ?? '');
 $res_date       = trim($body['res_date'] ?? '');
 $start_time     = trim($body['start_time'] ?? ''); // HH:MM
-$duration_hours = isset($body['duration_hours']) ? max(1, min(4, (int)$body['duration_hours'])) : 2;
+$duration_hours = isset($body['duration_hours']) ? max(0.5, min(6, (float)$body['duration_hours'])) : 2.0;
 $guests         = isset($body['guests']) ? max(1, (int)$body['guests']) : 2;
 
 if (!$table_id || !$customer_name || !$customer_email || !$customer_phone || !$res_date || !$start_time) {
@@ -45,7 +45,7 @@ if (!$startTimestamp) {
     exit;
 }
 
-$endTimestamp   = $startTimestamp + ($duration_hours * 3600);
+$endTimestamp   = $startTimestamp + (int)round($duration_hours * 3600);
 $end_time       = date('H:i:s', $endTimestamp);
 
 // Grace period timestamp (ETA + 15 minutes)

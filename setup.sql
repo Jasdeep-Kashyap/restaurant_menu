@@ -148,7 +148,7 @@ CREATE TABLE IF NOT EXISTS `reservations` (
     res_date DATE NOT NULL,
     start_time TIME NOT NULL,
     end_time TIME NOT NULL,
-    duration_hours TINYINT UNSIGNED NOT NULL DEFAULT 2,
+    duration_hours DECIMAL(3,1) UNSIGNED NOT NULL DEFAULT 2.0,
     guests TINYINT UNSIGNED NOT NULL DEFAULT 2,
     status ENUM('CONFIRMED', 'CANCELLED', 'EXPIRED') NOT NULL DEFAULT 'CONFIRMED',
     cancellation_token VARCHAR(64) NOT NULL UNIQUE,

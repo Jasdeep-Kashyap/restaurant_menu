@@ -8,9 +8,9 @@ $current_page = basename($_SERVER['PHP_SELF']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $page_title ?? 'La Maison — Fine Dining' ?></title>
+    <title><?= $page_title ?? 'Obsidian — Fine Dining' ?></title>
     <meta name="description"
-        content="<?= $page_desc ?? 'La Maison — Premium fine dining restaurant. Crafted with passion, every dish tells a story.' ?>">
+        content="<?= $page_desc ?? 'Obsidian — Premium fine dining restaurant. Crafted with passion, every dish tells a story.' ?>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -25,8 +25,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <nav class="main-nav">
         <div class="nav-inner">
             <a href="../index.html" class="nav-logo">
-                <img src="../Image_Content/image.svg" alt="La Maison Logo" class="logo-icon">
-                <span class="logo-text">La Maison</span>
+                <img src="../Image_Content/image.svg" alt="Obsidian Logo" class="logo-icon">
+                <span class="logo-text">Obsidian</span>
             </a>
 
             <!-- Checkbox hack for mobile toggle (no JS) -->

@@ -11,7 +11,7 @@ require_once __DIR__ . '/../includes/db.php';
 // Parse query params
 $date     = trim($_GET['date'] ?? date('Y-m-d'));
 $time     = trim($_GET['time'] ?? '19:00');
-$duration = isset($_GET['duration']) ? max(1, min(4, (int)$_GET['duration'])) : 2;
+$duration = isset($_GET['duration']) ? max(0.5, min(6, (float)$_GET['duration'])) : 2.0;
 
 if (strlen($time) === 5) {
     $time .= ':00';
@@ -23,7 +23,7 @@ if (!$startTimestamp) {
     $time = '19:00:00';
     $startTimestamp = strtotime("$date $time");
 }
-$endTimestamp = $startTimestamp + ($duration * 3600);
+$endTimestamp = $startTimestamp + (int)round($duration * 3600);
 $end_time     = date('H:i:s', $endTimestamp);
 
 try {

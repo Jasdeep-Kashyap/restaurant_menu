@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>500 Server Error — La Maison</title>
+    <title>500 Server Error — Obsidian</title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,500&display=swap" rel="stylesheet">
@@ -197,7 +197,7 @@ h1 {
             <a href="javascript:history.back()" class="btn btn-primary">← Try Again</a>
             <a href="/img/restaurant_menu/index.html" class="btn btn-outline">Home</a>
         </div>
-        <div class="error-footer">La Maison · Error 500</div>
+        <div class="error-footer">Obsidian · Error 500</div>
     </div>
 </div>
 </body>

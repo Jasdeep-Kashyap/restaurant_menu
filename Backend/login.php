@@ -1,6 +1,6 @@
 <?php
 /**
- * login.php — Authenticated login page for La Maison backend
+ * login.php — Authenticated login page for Obsidian backend
  */
 require_once '../includes/auth.php';
 
@@ -59,8 +59,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staff Login — La Maison</title>
-    <meta name="description" content="Secure staff login portal for La Maison restaurant management.">
+    <title>Staff Login — Obsidian</title>
+    <meta name="description" content="Secure staff login portal for Obsidian restaurant management.">
     <meta name="robots" content="noindex, nofollow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -369,7 +369,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <!-- Brand -->
         <div class="brand">
             <div class="brand-icon">🍽️</div>
-            <h1>La Maison</h1>
+            <h1>Obsidian</h1>
             <p>Staff Portal</p>
         </div>
 
@@ -449,7 +449,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <!-- Footer -->
         <div class="login-footer">
-            <span>La Maison</span> · Internal use only
+            <span>Obsidian</span> · Internal use only
         </div>
 
     </div><!-- /.login-card -->

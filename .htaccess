@@ -5,10 +5,10 @@
 Options -Indexes
 
 # ── Custom Error Pages ─────────────────────────────────────────
-ErrorDocument 400 /img/restaurant_menu/errors/400.php
-ErrorDocument 403 /img/restaurant_menu/errors/403.php
-ErrorDocument 404 /img/restaurant_menu/errors/404.php
-ErrorDocument 500 /img/restaurant_menu/errors/500.php
+ErrorDocument 400 /errors/400.php
+ErrorDocument 403 /errors/403.php
+ErrorDocument 404 /errors/404.php
+ErrorDocument 500 /errors/500.php
 
 # ── Block .git directory access (LOW-1 fix) ────────────────────
 <IfModule mod_rewrite.c>
@@ -19,7 +19,7 @@ ErrorDocument 500 /img/restaurant_menu/errors/500.php
     RewriteRule ^\.env$       - [F,L]
 
     # Redirect old static surprise page to PHP version
-    RewriteRule ^Frontend/suprise\.html$ /img/restaurant_menu/Frontend/suprise.php [R=301,L]
+    RewriteRule ^Frontend/suprise\.html$ /Frontend/suprise.php [R=301,L]
 </IfModule>
 
 # Also block via FilesMatch for extra safety
@@ -70,7 +70,7 @@ ErrorDocument 500 /img/restaurant_menu/errors/500.php
 </IfModule>
 
 # ── PHP Settings ───────────────────────────────────────────────
-<IfModule mod_php.c>
+<IfModule mod_php7.c>
     # Hide PHP errors from end users (log internally instead)
     php_flag  display_errors Off
     php_flag  log_errors On

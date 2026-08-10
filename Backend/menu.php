@@ -6,8 +6,8 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 require_once '../includes/auth.php'; // For csrf_token() helper
 
-$page_title = 'Our Menu — La Maison';
-$page_desc = 'Browse La Maison\'s curated fine-dining menu — starters, mains, desserts, and drinks. Order online.';
+$page_title = 'Our Menu — Obsidian';
+$page_desc = 'Browse Obsidian\'s curated fine-dining menu — starters, mains, desserts, and drinks. Order online.';
 
 /* ── Cart Actions ─────────────────────────────────────────── */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

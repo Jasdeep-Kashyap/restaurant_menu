@@ -5,8 +5,8 @@
  */
 require_once '../includes/db.php';
 
-$page_title = 'Reserve a Table — La Maison';
-$page_desc  = 'Book your perfect table at La Maison. Interactive floor plan with real-time slot availability.';
+$page_title = 'Reserve a Table — Obsidian';
+$page_desc  = 'Book your perfect table at Obsidian. Interactive floor plan with real-time slot availability.';
 
 $tables       = $pdo->query("SELECT id, name, zone, capacity, status, x, y FROM `tables` ORDER BY zone, id")->fetchAll();
 $main_tables  = array_values(array_filter($tables, fn($t) => $t['zone'] === 'Main'));
@@ -24,7 +24,7 @@ $reserved_count = count($tables) - $free_count;
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../css/style.css?v=<?= filemtime(__DIR__ . '/../css/style.css') ?>">
+    <link rel="stylesheet" href="../css/style.css?v=<?= @filemtime(__DIR__ . '/../css/style.css') ?>">
     <style>
     /* ══════════════════════════════════════════════════
        RESERVATIONS — FULL RESTAURANT FLOOR PLAN UI
@@ -265,13 +265,18 @@ $reserved_count = count($tables) - $free_count;
 
     /* RESERVED state */
     .res-table.reserved {
-        background: rgba(255,255,255,0.025);
-        border-color: rgba(255,255,255,0.09);
-        cursor: not-allowed;
-        opacity: 0.6;
+        background: rgba(255,71,87,0.05);
+        border-color: rgba(255,71,87,0.2);
+        cursor: pointer;
+        opacity: 0.85;
     }
     .res-table.reserved::before,
-    .res-table.reserved::after { background: rgba(255,255,255,0.1); }
+    .res-table.reserved::after { background: rgba(255,71,87,0.25); }
+    .res-table.reserved:hover {
+        background: rgba(255,71,87,0.12);
+        border-color: rgba(255,71,87,0.45);
+        transform: translateY(-2px);
+    }
 
     /* SELECTED state */
     .res-table.selected {
@@ -699,26 +704,18 @@ $reserved_count = count($tables) - $free_count;
             </div>
             <div class="slot-field">
                 <label for="slot-time">Arrival</label>
-                <select id="slot-time">
-                    <option value="11:00">11:00 AM</option>
-                    <option value="12:00">12:00 PM</option>
-                    <option value="13:00">01:00 PM</option>
-                    <option value="14:00">02:00 PM</option>
-                    <option value="15:00">03:00 PM</option>
-                    <option value="17:00">05:00 PM</option>
-                    <option value="18:00">06:00 PM</option>
-                    <option value="19:00" selected>07:00 PM</option>
-                    <option value="20:00">08:00 PM</option>
-                    <option value="21:00">09:00 PM</option>
-                    <option value="22:00">10:00 PM</option>
-                </select>
+                <input type="time" id="slot-time" value="19:00" min="10:00" max="23:00" step="900"
+                    style="background:transparent;border:none;color:var(--text);font-family:var(--font-body);font-size:0.85rem;outline:none;cursor:pointer;">
             </div>
             <div class="slot-field">
                 <label for="slot-dur">Duration</label>
                 <select id="slot-dur">
                     <option value="1">1 Hour</option>
+                    <option value="1.5">1.5 Hours</option>
                     <option value="2" selected>2 Hours</option>
+                    <option value="2.5">2.5 Hours</option>
                     <option value="3">3 Hours</option>
+                    <option value="4">4 Hours</option>
                 </select>
             </div>
         </div>
@@ -820,11 +817,11 @@ $reserved_count = count($tables) - $free_count;
     <aside class="res-sidebar" id="res-sidebar">
         <div class="res-sidebar-hdr">
             <h2>Reservation Details</h2>
-            <p>Click a green table to begin</p>
+            <p>Click any table to view schedule & book</p>
         </div>
         <div class="res-sidebar-empty" id="sidebar-empty">
             <span class="empty-ico">🪑</span>
-            <p>No table selected.<br>Click any <strong style="color:#2ed573;">available table</strong> on the floor plan.</p>
+            <p>No table selected.<br>Click any table on the floor plan to view its schedule & reserve.</p>
         </div>
         <div class="res-detail" id="res-detail">
             <span class="detail-zone-badge" id="detail-zone">Zone</span>
@@ -833,6 +830,8 @@ $reserved_count = count($tables) - $free_count;
                 <div id="detail-seats"></div>
                 <span id="detail-cap-text"></span>
             </div>
+
+
 
             <form class="res-form" id="res-form" novalidate>
                 <input type="hidden" id="selected-id" value="">
@@ -869,6 +868,8 @@ $reserved_count = count($tables) - $free_count;
                     <span>🍽️</span> Confirm Reservation
                 </button>
             </form>
+
+
         </div>
     </aside>
 
@@ -920,6 +921,21 @@ $reserved_count = count($tables) - $free_count;
     </div>
 </div>
 
+<!-- ── Full Table Schedule Modal ── -->
+<div class="modal-backdrop" id="modal-table-schedule">
+    <div class="modal-box" style="max-width:620px;">
+        <button class="modal-close" onclick="closeModal('modal-table-schedule')">&times;</button>
+        <span class="modal-icon">📋</span>
+        <div class="modal-title" id="ts-modal-title">Table Reservation History</div>
+        <p style="text-align:center;color:var(--muted);font-size:0.84rem;margin-bottom:16px;" id="ts-modal-sub">
+            All logged reservations for this table
+        </p>
+        <div id="ts-modal-list" style="display:flex;flex-direction:column;gap:10px;max-height:360px;overflow-y:auto;padding-right:6px;">
+            <div style="text-align:center;padding:24px;color:var(--muted);">Select a table to view history</div>
+        </div>
+    </div>
+</div>
+
 <!-- ── Toast ── -->
 <div class="res-toast" id="res-toast">
     <span id="toast-ico">✅</span>
@@ -932,12 +948,14 @@ $reserved_count = count($tables) - $free_count;
 (function () {
     'use strict';
 
-    const API_TABLES  = '../api/tables.php';
-    const API_CREATE  = '../api/reservations/create.php';
-    const API_CANCEL  = '../api/reservations/cancel.php';
-    const API_TODAY   = '../api/reservations/today.php';
+    const API_TABLES    = '../api/tables.php';
+    const API_CREATE    = '../api/reservations/create.php';
+    const API_CANCEL    = '../api/reservations/cancel.php';
+    const API_TODAY     = '../api/reservations/today.php';
+    const API_TABLE_RES = '../api/reservations/table_reservations.php';
 
     let selectedId = null;
+
 
     // ── Elements ─────────────────────────────────────────────────
     const slotDate     = document.getElementById('slot-date');
@@ -969,6 +987,7 @@ $reserved_count = count($tables) - $free_count;
     // ── Refresh floor plan availability ──────────────────────────
     async function refreshFloor() {
         try {
+            const currentSelected = selectedId;
             const r = await fetch(`${API_TABLES}?date=${slotDate.value}&time=${slotTime.value}&duration=${slotDur.value}`);
             const j = await r.json();
             if (!j.success) return;
@@ -980,16 +999,13 @@ $reserved_count = count($tables) - $free_count;
                 const isRes = t.status === 'RESERVED';
                 isRes ? resN++ : freeN++;
 
-                const wasSelected = parseInt(selectedId) === t.id;
+                const wasSelected = parseInt(currentSelected) === t.id;
                 const newCls = isRes ? 'reserved' : 'free';
                 el.className = `res-table ${newCls}`;
                 el.dataset.status = newCls;
 
-                // Restore selection highlight if still free
-                if (wasSelected && !isRes) {
-                    el.className = 'res-table selected';
-                } else if (wasSelected && isRes) {
-                    deselectTable();
+                if (wasSelected) {
+                    el.classList.add('selected');
                 }
 
                 // Chair mark lock icon
@@ -1000,19 +1016,28 @@ $reserved_count = count($tables) - $free_count;
                     el.prepend(l);
                 } else if (!isRes && lock) { lock.remove(); }
 
-                // Dot colours update via CSS class, update tabindex
-                el.setAttribute('tabindex', isRes ? '' : '0');
-                el.setAttribute('aria-disabled', isRes ? 'true' : 'false');
+                el.setAttribute('tabindex', '0');
+                el.setAttribute('aria-disabled', 'false');
             });
 
             statFree.textContent     = freeN;
             statReserved.textContent = resN;
             attachHandlers();
+
+            if (selectedId) {
+                const currentEl = document.getElementById('table-' + selectedId);
+                if (currentEl) {
+                    const isReservedNow = currentEl.dataset.status === 'reserved';
+                    submitBtn.disabled = isReservedNow;
+                    submitBtn.style.opacity = isReservedNow ? '0.5' : '1';
+                    submitBtn.innerHTML = isReservedNow ? '🔒 Reserved for this Slot' : '<span>🍽️</span> Confirm Reservation';
+                }
+            }
         } catch (err) { console.warn('Floor refresh error:', err); }
     }
 
     function attachHandlers() {
-        document.querySelectorAll('.res-table.free').forEach(el => {
+        document.querySelectorAll('.res-table').forEach(el => {
             el.onclick = onTableClick;
             el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onTableClick.call(el, e); } };
         });
@@ -1021,7 +1046,7 @@ $reserved_count = count($tables) - $free_count;
     function deselectTable() {
         if (selectedId) {
             const prev = document.getElementById('table-' + selectedId);
-            if (prev && prev.classList.contains('selected')) prev.classList.replace('selected', 'free');
+            if (prev) prev.classList.remove('selected');
         }
         selectedId = null;
         sideDetail.classList.remove('visible');
@@ -1031,13 +1056,15 @@ $reserved_count = count($tables) - $free_count;
 
     function onTableClick(e) {
         const el = e.currentTarget || this;
-        if (el.dataset.status === 'reserved') return;
+        const tid = el.dataset.id;
+        const isReserved = el.dataset.status === 'reserved';
+
         if (selectedId) {
             const prev = document.getElementById('table-' + selectedId);
-            if (prev && prev !== el) prev.classList.replace('selected', 'free');
+            if (prev && prev !== el) prev.classList.remove('selected');
         }
-        el.classList.replace('free', 'selected');
-        selectedId = el.dataset.id;
+        el.classList.add('selected');
+        selectedId = tid;
 
         const cap  = parseInt(el.dataset.capacity, 10);
         detailZone.textContent = '📍 ' + el.dataset.zone + ' Zone';
@@ -1052,11 +1079,91 @@ $reserved_count = count($tables) - $free_count;
         }
         detailCap.textContent = ' ' + cap + ' seats';
 
+        if (isReserved) {
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.5';
+            submitBtn.innerHTML = '🔒 Reserved for this Slot';
+        } else {
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+            submitBtn.innerHTML = '<span>🍽️</span> Confirm Reservation';
+        }
+
         sideEmpty.style.display = 'none';
         sideDetail.classList.add('visible');
         sidebar.classList.add('has-selection');
 
         if (window.innerWidth < 1080) sidebar.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // ── Per-table schedule loader ──────────────────────────────────
+    async function loadTableSchedule(tableId, date) {
+        const listEl = document.getElementById('table-schedule-list');
+        if (!listEl) return;
+
+        listEl.innerHTML = '<div style="text-align:center;padding:10px;color:var(--muted);">Loading schedule…</div>';
+
+        try {
+            const res = await fetch(`${API_TABLE_RES}?table_id=${tableId}&date=${date}`);
+            const j   = await res.json();
+
+            if (!j.success || j.data.length === 0) {
+                listEl.innerHTML = `
+                    <div style="background:rgba(46,213,115,0.06);border:1px solid rgba(46,213,115,0.2);color:#2ed573;padding:10px 12px;border-radius:10px;text-align:center;font-size:0.8rem;">
+                        ✨ No reservations for ${j.table ? j.table.name : 'this table'} on ${date}. Table is free all day!
+                    </div>
+                `;
+            } else {
+                listEl.innerHTML = j.data.map(r => `
+                    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:9px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                        <div>
+                            <strong style="color:var(--text);font-size:0.84rem;display:block;">${r.start_fmt} – ${r.end_fmt} (${r.duration_hours}h)</strong>
+                            <span style="font-size:0.75rem;color:var(--muted);">${r.customer_name} · ${r.guests} guests</span>
+                        </div>
+                        <span style="font-size:0.67rem;font-weight:700;padding:2px 8px;border-radius:50px;color:${r.status === 'CONFIRMED' ? '#2ed573' : (r.status === 'CANCELLED' ? '#ff4757' : '#ffa500')};background:${r.status === 'CONFIRMED' ? 'rgba(46,213,115,0.12)' : 'rgba(255,71,87,0.12)'};">
+                            ${r.status}
+                        </span>
+                    </div>
+                `).join('');
+            }
+
+            fetchFullHistory(tableId);
+        } catch (err) {
+            listEl.innerHTML = '<div style="color:#ff6b7a;padding:8px;text-align:center;">Failed to load table schedule.</div>';
+        }
+    }
+
+    async function fetchFullHistory(tableId) {
+        const modalTitle = document.getElementById('ts-modal-title');
+        const modalSub   = document.getElementById('ts-modal-sub');
+        const modalList  = document.getElementById('ts-modal-list');
+        if (!modalList) return;
+
+        try {
+            const res = await fetch(`${API_TABLE_RES}?table_id=${tableId}`);
+            const j   = await res.json();
+            if (!j.success) return;
+
+            modalTitle.textContent = `Schedule & Log: ${j.table.name} (${j.table.zone} Zone)`;
+            modalSub.textContent   = `Total Logged Bookings: ${j.count} · Capacity: ${j.table.capacity} Seats`;
+
+            if (j.data.length === 0) {
+                modalList.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted);">No booking history recorded for this table yet.</div>';
+            } else {
+                modalList.innerHTML = j.data.map(r => `
+                    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+                        <div>
+                            <strong style="color:var(--text);font-size:0.9rem;">${r.res_date}</strong>
+                            <div style="color:var(--gold);font-size:0.8rem;font-weight:600;margin-top:2px;">${r.start_fmt} – ${r.end_fmt} (${r.duration_hours}h)</div>
+                            <div style="color:var(--muted);font-size:0.78rem;margin-top:2px;">Guest: <strong>${r.customer_name}</strong> (${r.guests} guests) · ${r.customer_phone}</div>
+                        </div>
+                        <span style="font-size:0.72rem;font-weight:700;padding:3px 10px;border-radius:50px;color:${r.status === 'CONFIRMED' ? '#2ed573' : (r.status === 'CANCELLED' ? '#ff4757' : '#ffa500')};background:${r.status === 'CONFIRMED' ? 'rgba(46,213,115,0.12)' : 'rgba(255,71,87,0.12)'};">
+                            ${r.status}
+                        </span>
+                    </div>
+                `).join('');
+            }
+        } catch (e) { /* silent */ }
     }
 
     // ── Reservation form ─────────────────────────────────────────

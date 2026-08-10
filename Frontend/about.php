@@ -10,8 +10,8 @@ if (isset($_ps['about']) && !$_ps['about']) {
     exit;
 }
 
-$page_title = 'About Us — La Maison';
-$page_desc  = 'Learn the story behind La Maison — our history, philosophy, and the passionate team behind every unforgettable dish.';
+$page_title = 'About Us — Obsidian';
+$page_desc  = 'Learn the story behind Obsidian — our history, philosophy, and the passionate team behind every unforgettable dish.';
 include '../includes/header.php';
 ?>
 
@@ -19,7 +19,7 @@ include '../includes/header.php';
 <header class="hero page-hero about-hero">
     <div class="hero-content">
         <div class="hero-tag">Our Story</div>
-        <h1>About La Maison</h1>
+        <h1>About Obsidian</h1>
         <p class="hero-subtitle">A legacy of flavour, crafted over decades</p>
         <div class="divider"><span>✦</span></div>
     </div>
@@ -34,9 +34,9 @@ include '../includes/header.php';
         <div class="about-story-text">
             <span class="section-tag">Since 2008</span>
             <h2>Where Passion Meets Plate</h2>
-            <p>La Maison was born from a simple belief: that extraordinary food should create extraordinary moments. Founded in 2008 by Chef Antoine Moreau, our restaurant has grown from a small Parisian bistro into one of the city's most sought-after dining destinations.</p>
+            <p>Obsidian was born from a simple belief: that extraordinary food should create extraordinary moments. Founded in 2008 by Chef Antoine Moreau, our restaurant has grown from a small Parisian bistro into one of the city's most sought-after dining destinations.</p>
             <p>Every dish on our menu tells a story — from the sun-drenched farms where our ingredients are sourced, to the creative minds in our kitchen who transform them into edible art. We honour traditional French techniques while embracing bold, modern expressions of flavour.</p>
-            <p>Today, La Maison is more than a restaurant. It is an experience — a place where memories are made over shared plates, fine wines, and the warmth of genuine hospitality.</p>
+            <p>Today, Obsidian is more than a restaurant. It is an experience — a place where memories are made over shared plates, fine wines, and the warmth of genuine hospitality.</p>
         </div>
     </div>
 </section>
@@ -92,7 +92,7 @@ include '../includes/header.php';
 <!-- ── CTA ─────────────────────────────────────────────────── -->
 <section class="cta-banner">
     <div class="container">
-        <h2>Come Experience La Maison</h2>
+        <h2>Come Experience Obsidian</h2>
         <p>Book a table and let us create an unforgettable evening for you.</p>
         <div class="cta-buttons">
             <a href="../Backend/menu.php" class="btn btn-primary">View Menu</a>

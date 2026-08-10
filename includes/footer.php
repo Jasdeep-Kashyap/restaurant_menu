@@ -3,8 +3,8 @@
     <div class="footer-inner">
         <div class="footer-col footer-brand">
             <div class="footer-logo">
-                <img src="../Image_Content/image.svg" width="100px" height="100px" alt="La Maison Logo" class="logo-icon">
-                <span class="logo-text">La Maison</span>
+                <img src="../Image_Content/image.svg" width="100px" height="100px" alt="Obsidian Logo" class="logo-icon">
+                <span class="logo-text">Obsidian</span>
             </div>
             <p>Crafted with passion — every dish tells a story. Fine dining since 2008.</p>
         </div>
@@ -34,13 +34,13 @@
             <ul>
                 <li>📍Plot No. 21, Ward 5/B, Adipur,<br>Gandhidham, Gujarat 370205</li>
                 <li>📞 +91 90994-34638</li>
-                <li>✉️ hello@lamaison.com</li>
+                <li>✉️ hello@obsidian.com</li>
             </ul>
         </div>
     </div>
 
     <div class="footer-bottom">
-        <p>&copy; <?= date('Y') ?> La Maison. All rights reserved.</p>
+        <p>&copy; <?= date('Y') ?> Obsidian. All rights reserved.</p>
     </div>
 </footer>
 
