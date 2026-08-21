@@ -39,15 +39,23 @@ function cashfree_create_order(array $params): array {
         'x-client-secret: ' . CF_SECRET_KEY,
     ];
 
+    $cust_clean_id = preg_replace('/[^a-zA-Z0-9]/', '', $params['customer_name'] ?? '');
+    if (empty($cust_clean_id)) {
+        $cust_clean_id = 'GUEST';
+    }
+
+    $raw_phone = preg_replace('/[^0-9]/', '', $params['customer_phone'] ?? '');
+    $phone = (strlen($raw_phone) === 10 && in_array($raw_phone[0], ['6', '7', '8', '9'])) ? $raw_phone : '9876543210';
+
     $body = json_encode([
         'order_id'       => $params['order_id'],
         'order_amount'   => floatval($params['amount']),
         'order_currency' => 'INR',
         'customer_details' => [
-            'customer_id'    => 'CUST_' . preg_replace('/[^a-zA-Z0-9]/', '', $params['customer_name']) . '_' . time(),
-            'customer_name'  => $params['customer_name'],
-            'customer_email' => $params['customer_email'] ?? 'customer@example.com',
-            'customer_phone' => $params['customer_phone'] ?? '9999999999',
+            'customer_id'    => 'CUST_' . $cust_clean_id . '_' . time(),
+            'customer_name'  => $params['customer_name'] ?: 'Obsidian Guest',
+            'customer_email' => $params['customer_email'] ?? 'guest@obsidian.com',
+            'customer_phone' => $phone,
         ],
         'order_meta' => [
             'return_url' => $params['return_url'] . '?order_id={order_id}',

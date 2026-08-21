@@ -18,13 +18,38 @@ if (!$input) {
 }
 
 $customer_name  = trim($input['customer_name'] ?? '');
-$customer_email = trim($input['customer_email'] ?? 'testcustomer@example.com');
-$customer_phone = trim($input['customer_phone'] ?? '9999999999');
-$total_price    = floatval($input['total_price'] ?? 0);
-$items_json     = trim($input['items_json'] ?? '');
+$customer_email = trim($input['customer_email'] ?? 'customer@obsidian.com');
+$phone_raw      = trim($input['customer_phone'] ?? '');
+$phone_digits   = preg_replace('/[^0-9]/', '', $phone_raw);
+$customer_phone = (strlen($phone_digits) === 10 && in_array($phone_digits[0], ['6', '7', '8', '9'])) ? $phone_digits : '9876543210';
 
-if ($customer_name === '' || $total_price <= 0) {
-    echo json_encode(['success' => false, 'error' => 'Please provide customer name and valid cart total.']);
+if ($customer_name === '') {
+    echo json_encode(['success' => false, 'error' => 'Please provide your name before proceeding to payment.']);
+    exit;
+}
+
+// Server-side authoritative cart calculation from session
+$cart        = $_SESSION['cart'] ?? [];
+$total_price = 0.0;
+$items_list  = [];
+
+foreach ($cart as $ci) {
+    $qty   = intval($ci['qty'] ?? 1);
+    $price = floatval($ci['price'] ?? 0);
+    $total_price += $price * $qty;
+    $items_list[] = ($ci['name'] ?? 'Item') . ' (×' . $qty . ')';
+}
+$total_price = round($total_price, 2);
+
+// Fallback to client total if session cart is somehow empty but client sent valid data
+if ($total_price <= 0 && !empty($input['total_price']) && floatval($input['total_price']) > 0) {
+    $total_price = floatval($input['total_price']);
+}
+
+$items_json = !empty($items_list) ? json_encode($items_list) : trim($input['items_json'] ?? '');
+
+if ($total_price <= 0 || empty($items_json) || $items_json === '[]') {
+    echo json_encode(['success' => false, 'error' => 'Your cart is empty. Please add items to your cart before proceeding.']);
     exit;
 }
 
@@ -39,6 +64,7 @@ $return_url = $protocol . '://' . $host . dirname($_SERVER['SCRIPT_NAME']) . '/c
 // Store pending order details in session
 $_SESSION['pending_order_' . $cf_order_id] = [
     'customer_name'  => $customer_name,
+    'customer_phone' => $customer_phone,
     'items_json'     => $items_json,
     'total_price'    => $total_price,
     'scheduled_date' => $input['scheduled_date'] ?? '',

@@ -107,6 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo json_encode([
                 'cart_count' => $cart_count,
                 'cart_total' => '₹' . number_format($cart_total, 2),
+                'cart_total_raw' => (float)$cart_total,
                 'cart_items_html' => $cart_items_html,
                 'card_actions_html' => $card_actions_html,
                 'item_id' => $id,
@@ -321,7 +322,9 @@ include '../includes/header.php';
                     <!-- ── STEP 1: Details & Schedule ────────────── -->
                     <div id="checkoutStep1">
                         <input type="text" class="order-input" name="customer_name" id="custName"
-                            placeholder="Your name" maxlength="120" autocomplete="name" required>
+                            placeholder="Your full name" maxlength="120" autocomplete="name" required>
+                        <input type="tel" class="order-input" name="customer_phone" id="custPhone"
+                            placeholder="Phone number (10 digits, e.g. 9876543210)" maxlength="10" autocomplete="tel" style="margin-top: 8px;">
 
                         <!-- Schedule toggle -->
                         <div class="ck-schedule-section">
@@ -353,7 +356,7 @@ include '../includes/header.php';
                             <div class="ck-upi-body">
                                 <div class="ck-upi-amount-badge">
                                     <span class="ck-amount-label">Amount Payable</span>
-                                    <span class="ck-upi-amount">₹<?= number_format($cart_total, 2) ?></span>
+                                    <span class="ck-upi-amount" id="step2PayableAmount">₹<?= number_format($cart_total, 2) ?></span>
                                 </div>
 
                                 <!-- Cashfree PG Display Area -->
@@ -666,13 +669,27 @@ include '../includes/header.php';
                 return;
             }
 
+            const activeCount = window.obsidianCart ? window.obsidianCart.count : <?= (int)$cart_count ?>;
+            const activeTotal = window.obsidianCart ? window.obsidianCart.total : <?= (float)$cart_total ?>;
+            if (activeCount <= 0 || activeTotal <= 0) {
+                alert('Your cart is empty. Please add items to your cart before proceeding to payment.');
+                step2.style.display = 'none';
+                step1.style.display = 'block';
+                return;
+            }
+
             btnPayCashfree.disabled = true;
             btnPayCashfree.textContent = 'Connecting Cashfree Gateway…';
 
+            const phoneInput = document.getElementById('custPhone');
+            const phoneVal = phoneInput ? phoneInput.value.trim() : '';
+
+            const itemsHiddenInput = document.getElementById('hiddenItemsJson') || document.querySelector('input[name="items_json"]');
             const payload = {
                 customer_name: nameVal,
-                total_price: <?= number_format($cart_total, 2, '.', '') ?>,
-                items_json: document.querySelector('input[name="items_json"]').value,
+                customer_phone: phoneVal,
+                total_price: activeTotal,
+                items_json: itemsHiddenInput ? itemsHiddenInput.value : '',
                 scheduled_date: hiddenDate ? hiddenDate.value : '',
                 scheduled_time: hiddenTime ? hiddenTime.value : ''
             };
@@ -749,6 +766,13 @@ include '../includes/header.php';
                 return;
             }
 
+            const activeCount = window.obsidianCart ? window.obsidianCart.count : <?= (int)$cart_count ?>;
+            const activeTotal = window.obsidianCart ? window.obsidianCart.total : <?= (float)$cart_total ?>;
+            if (activeCount <= 0 || activeTotal <= 0) {
+                alert('Your cart is empty! Please add items to your cart before checking out.');
+                return;
+            }
+
             if (scheduling) {
                 if (!schedDate.value || !schedTime.value) {
                     schedFields.classList.add('ck-shake');
@@ -821,6 +845,12 @@ include '../includes/header.php';
     }
 })();
 
+// ── Global Cart State ─────────────────────────────────────────
+window.obsidianCart = {
+    total: <?= (float)$cart_total ?>,
+    count: <?= (int)$cart_count ?>
+};
+
 // ── AJAX Cart Logic ─────────────────────────────────────────
 document.addEventListener('submit', function(e) {
     if (e.target.classList.contains('ajax-cart-form')) {
@@ -843,6 +873,12 @@ document.addEventListener('submit', function(e) {
         .then(data => {
             if (btn) btn.style.opacity = '1';
             
+            // Update global JS cart state
+            if (window.obsidianCart) {
+                window.obsidianCart.total = parseFloat(data.cart_total_raw !== undefined ? data.cart_total_raw : 0);
+                window.obsidianCart.count = parseInt(data.cart_count || 0);
+            }
+
             // Update specific card buttons
             const actionsContainer = document.getElementById('actions-' + data.item_id);
             if (actionsContainer) actionsContainer.innerHTML = data.card_actions_html;
@@ -851,11 +887,18 @@ document.addEventListener('submit', function(e) {
             const countBadge = document.getElementById('cartCountBadge');
             const totalText = document.getElementById('cartTotal');
             const pillCount = document.getElementById('pillCount');
+            const payableBadge = document.getElementById('step2PayableAmount');
             
             if (countBadge) countBadge.textContent = data.cart_count;
             if (totalText) totalText.textContent = data.cart_total;
             if (pillCount) pillCount.textContent = data.cart_count;
+            if (payableBadge) payableBadge.textContent = data.cart_total;
             
+            // Also update any other ck-upi-amount badges
+            document.querySelectorAll('.ck-upi-amount').forEach(el => {
+                el.textContent = data.cart_total;
+            });
+
             // Update items list inside drawer
             const itemsList = document.getElementById('cartItemsList');
             if (itemsList) itemsList.innerHTML = data.cart_items_html;
