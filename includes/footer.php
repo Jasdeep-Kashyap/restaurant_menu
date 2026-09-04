@@ -3,8 +3,9 @@
     <div class="footer-inner">
         <div class="footer-col footer-brand">
             <div class="footer-logo">
-                <img src="../Image_Content/image.svg" width="100px" height="100px" alt="Obsidian Logo" class="logo-icon">
-                <span class="logo-text">Obsidian</span>
+                <img src="../Image_Content/image.svg" width="100px" height="100px" alt="Restaurant Management System Logo"
+                    class="logo-icon">
+                <span class="logo-text">Restaurant Management System</span>
             </div>
             <p>Crafted with passion — every dish tells a story. Fine dining since 2008.</p>
         </div>
@@ -17,6 +18,7 @@
                 <li><a href="../Frontend/about.php">About Us</a></li>
                 <li><a href="../Frontend/contact.php">Contact</a></li>
                 <li><a href="../Frontend/suprise.html">Surprise</a></li>
+                <li><a href="../Frontend/T&C.html">Terms and Conditions</a></li>
             </ul>
         </div>
 
@@ -34,13 +36,13 @@
             <ul>
                 <li>📍Plot No. 21, Ward 5/B, Adipur,<br>Gandhidham, Gujarat 370205</li>
                 <li>📞 +91 90994-34638</li>
-                <li>✉️ hello@obsidian.com</li>
+                <li>✉️ hello@restaurantmanagement.com</li>
             </ul>
         </div>
     </div>
 
     <div class="footer-bottom">
-        <p>&copy; <?= date('Y') ?> Obsidian. All rights reserved.</p>
+        <p>&copy; <?= date('Y') ?> Restaurant Management System. All rights reserved.</p>
     </div>
 </footer>
 

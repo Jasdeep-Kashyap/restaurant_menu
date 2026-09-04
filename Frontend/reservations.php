@@ -5,8 +5,8 @@
  */
 require_once '../includes/db.php';
 
-$page_title = 'Reserve a Table — Obsidian';
-$page_desc  = 'Book your perfect table at Obsidian. Interactive floor plan with real-time slot availability.';
+$page_title = 'Reserve a Table — Restaurant Management System';
+$page_desc  = 'Book your perfect table at Restaurant Management System. Interactive floor plan with real-time slot availability.';
 
 $tables       = $pdo->query("SELECT id, name, zone, capacity, status, x, y FROM `tables` ORDER BY zone, id")->fetchAll();
 $main_tables  = array_values(array_filter($tables, fn($t) => $t['zone'] === 'Main'));

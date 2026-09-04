@@ -53,8 +53,8 @@ function cashfree_create_order(array $params): array {
         'order_currency' => 'INR',
         'customer_details' => [
             'customer_id'    => 'CUST_' . $cust_clean_id . '_' . time(),
-            'customer_name'  => $params['customer_name'] ?: 'Obsidian Guest',
-            'customer_email' => $params['customer_email'] ?? 'guest@obsidian.com',
+            'customer_name'  => $params['customer_name'] ?: 'Guest',
+            'customer_email' => $params['customer_email'] ?? 'guest@restaurantmanagement.com',
             'customer_phone' => $phone,
         ],
         'order_meta' => [

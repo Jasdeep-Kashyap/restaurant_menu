@@ -8,7 +8,7 @@ auth_require(['admin']);
 
 require_once '../includes/db.php';
 
-$page_title = 'Table Management — Obsidian Admin';
+$page_title = 'Table Management — Restaurant Management System Admin';
 
 // Fetch all tables
 $tables = $pdo->query(
@@ -569,8 +569,8 @@ $initial_table_hash = md5($pdo->query("SELECT GROUP_CONCAT(status ORDER BY id) F
 <nav class="main-nav">
     <div class="nav-inner">
         <a href="../index.html" class="nav-logo">
-            <img src="../Image_Content/image.svg" alt="Obsidian Logo" class="logo-icon">
-            <span class="logo-text">Obsidian</span>
+            <img src="../Image_Content/image.svg" alt="Restaurant Management System Logo" class="logo-icon">
+            <span class="logo-text">Restaurant Management System</span>
         </a>
         <ul class="nav-links" style="display:flex;list-style:none;gap:24px;align-items:center;">
             <li><a href="admin.php" style="color:var(--muted);font-size:0.9rem;font-weight:500;">← Menu Admin</a></li>

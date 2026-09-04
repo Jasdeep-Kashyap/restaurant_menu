@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms & Conditions — Restaurant Management System</title>
+    <meta name="description"
+        content="Terms and Conditions and Legal Disclaimer for the Restaurant Management System demonstration prototype.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .tc-hero {
+            background: linear-gradient(135deg, rgba(19, 22, 27, 0.95), rgba(12, 14, 17, 0.98)),
+                        url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1600&q=80') center/cover no-repeat;
+            padding: 80px 20px 60px;
+            text-align: center;
+        }
+
+        .tc-notice-box {
+            background: rgba(232, 169, 60, 0.08);
+            border: 1px solid rgba(232, 169, 60, 0.3);
+            border-left: 4px solid var(--gold, #e8a93c);
+            border-radius: 12px;
+            padding: 24px 28px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(8px);
+        }
+
+        .tc-notice-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .tc-notice-icon {
+            font-size: 1.6rem;
+        }
+
+        .tc-notice-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            color: var(--gold, #e8a93c);
+            font-weight: 700;
+        }
+
+        .tc-notice-body {
+            color: rgba(255, 255, 255, 0.88);
+            font-size: 0.98rem;
+            line-height: 1.65;
+        }
+
+        .tc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .tc-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 14px;
+            padding: 28px;
+            transition: all 0.3s ease;
+        }
+
+        .tc-card:hover {
+            border-color: rgba(232, 169, 60, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .tc-card-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--gold, #e8a93c);
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            display: inline-block;
+            background: rgba(232, 169, 60, 0.1);
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
+
+        .tc-card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            color: #fff;
+            margin-bottom: 12px;
+        }
+
+        .tc-card-text {
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 0.93rem;
+            line-height: 1.6;
+        }
+
+        .tc-card-list {
+            margin-top: 12px;
+            padding-left: 18px;
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .tc-card-list li {
+            margin-bottom: 6px;
+        }
+
+        .tc-contact-callout {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 40px 24px;
+            margin-top: 20px;
+        }
+
+        .tc-contact-callout h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .tc-contact-callout p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ── Navigation ─────────────────────────────────────────── -->
+    <nav class="main-nav">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo">
+                <img src="../Image_Content/image.svg" alt="Restaurant Management System Logo" class="logo-icon">
+                <span class="logo-text">Restaurant Management System</span>
+            </a>
+
+            <!-- Checkbox hack for mobile toggle (no JS) -->
+            <input type="checkbox" id="navToggle" class="nav-toggle-checkbox">
+            <label for="navToggle" class="nav-toggle-label" aria-label="Toggle menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </label>
+
+            <ul class="nav-links">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="about.php">About</a></li>
+                <li><a href="contact.php">Contact</a></li>
+                <li><a href="../Backend/menu.php">Menu</a></li>
+                <li><a href="reservations.php">Reserve</a></li>
+                <li><a href="T&C.html" class="active">Terms</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ── Hero Section ────────────────────────────────────────── -->
+    <header class="hero page-hero tc-hero">
+        <div class="hero-content">
+            <div class="hero-tag">Legal & Disclaimer</div>
+            <h1>Terms & Conditions</h1>
+            <p class="hero-subtitle">Demonstration & Showcase Prototype Disclosure</p>
+            <div class="divider"><span>✦</span></div>
+        </div>
+    </header>
+
+    <!-- ── Main Terms Content ──────────────────────────────────── -->
+    <section class="section">
+        <div class="container">
+
+            <!-- Prototype Notice Banner -->
+            <div class="tc-notice-box">
+                <div class="tc-notice-header">
+                    <span class="tc-notice-icon">⚠️</span>
+                    <span class="tc-notice-title">IMPORTANT PROTOTYPE NOTICE</span>
+                </div>
+                <div class="tc-notice-body">
+                    <strong>Restaurant Management System</strong> is a <em>software demonstration prototype</em> built strictly for technical portfolio showcase, UI/UX evaluation, and proof-of-concept testing. This website is <strong>not</strong> an active commercial enterprise, operating restaurant, or registered merchant. No real products, services, or food items are offered, fulfilled, or delivered through this platform.
+                </div>
+            </div>
+
+            <!-- Terms Grid -->
+            <div class="tc-grid">
+
+                <!-- Clause 1 -->
+                <div class="tc-card">
+                    <span class="tc-card-num">SECTION 01</span>
+                    <h2 class="tc-card-title">Prototype & Demonstration Purpose</h2>
+                    <p class="tc-card-text">
+                        All components of this web application—including menu listings, table reservation floor plans, payment gateways, and administrative dashboards—serve exclusively as interactive mockups.
+                    </p>
+                    <ul class="tc-card-list">
+                        <li>Designed strictly for demonstration and technical display.</li>
+                        <li>No commercial orders or physical reservations are processed.</li>
+                        <li>System features may undergo live testing or updates without notice.</li>
+                    </ul>
+                </div>
+
+                <!-- Clause 2 -->
+                <div class="tc-card">
+                    <span class="tc-card-num">SECTION 02</span>
+                    <h2 class="tc-card-title">Mock Orders & Services</h2>
+                    <p class="tc-card-text">
+                        Items added to the cart, submitted orders, or scheduled reservations do not initiate real-world restaurant operations or food preparation.
+                    </p>
+                    <ul class="tc-card-list">
+                        <li>Prices, dishes, and stock numbers are simulated data.</li>
+                        <li>Table seating grids demonstrate interactive UI capabilities only.</li>
+                        <li>No staff or kitchen receives actionable fulfillment requests.</li>
+                    </ul>
+                </div>
+
+                <!-- Clause 3 -->
+                <div class="tc-card">
+                    <span class="tc-card-num">SECTION 03</span>
+                    <h2 class="tc-card-title">Payment & Financial Disclaimer</h2>
+                    <p class="tc-card-text">
+                        Payment flows shown on this platform (including UPI QR code simulations, UTR entry, and sandbox gateway configs) operate strictly in demonstration or test mode.
+                    </p>
+                    <ul class="tc-card-list">
+                        <li><strong>Do NOT enter real sensitive financial data</strong> (e.g., bank PINs, CVVs, or live credentials).</li>
+                        <li>No real money will be charged or deducted.</li>
+                        <li>Simulated transaction approvals generate mock receipts only.</li>
+                    </ul>
+                </div>
+
+                <!-- Clause 4 -->
+                <div class="tc-card">
+                    <span class="tc-card-num">SECTION 04</span>
+                    <h2 class="tc-card-title">User Data & Privacy for Testers</h2>
+                    <p class="tc-card-text">
+                        Any information entered into test forms (such as names, emails, or sample messages) is stored transiently in local development databases for feature testing.
+                    </p>
+                    <ul class="tc-card-list">
+                        <li>Please use dummy data when interacting with test forms.</li>
+                        <li>Data is not harvested, sold, or shared with commercial entities.</li>
+                        <li>Sessions and temporary test data may be cleared periodically.</li>
+                    </ul>
+                </div>
+
+                <!-- Clause 5 -->
+                <div class="tc-card">
+                    <span class="tc-card-num">SECTION 05</span>
+                    <h2 class="tc-card-title">Intellectual Property & Media</h2>
+                    <p class="tc-card-text">
+                        Logos, imagery, icons, and menu descriptions featured on this site are sample design assets used under fair-use showcase practices.
+                    </p>
+                    <ul class="tc-card-list">
+                        <li>Stock photography is attributed to open copyright sources (Unsplash).</li>
+                        <li>Source code and custom design tokens remain protected portfolio software.</li>
+                        <li>Third-party trademarks belong to their respective copyright holders.</li>
+                    </ul>
+                </div>
+
+                <!-- Clause 6 -->
+                <div class="tc-card">
+                    <span class="tc-card-num">SECTION 06</span>
+                    <h2 class="tc-card-title">Limitation of Liability</h2>
+                    <p class="tc-card-text">
+                        This prototype application is provided on an "AS IS" and "AS AVAILABLE" basis without any express or implied warranties regarding continuous uptime or production security.
+                    </p>
+                    <ul class="tc-card-list">
+                        <li>Developers accept no liability for misunderstandings regarding mock services.</li>
+                        <li>No guarantee of production availability or data persistence.</li>
+                        <li>Usage is entirely at the user's discretion for review purposes.</li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <!-- Contact Callout -->
+            <div class="tc-contact-callout">
+                <h3>Questions Regarding this Prototype?</h3>
+                <p>If you have any questions, feedback, or inquiries regarding this demonstration software project, feel free to get in touch with us.</p>
+                <div class="hero-cta">
+                    <a href="contact.php" class="btn btn-primary">Contact Page</a>
+                    <a href="../index.html" class="btn btn-outline">Return to Home</a>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ── Footer ─────────────────────────────────────────────── -->
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-col footer-brand">
+                <div class="footer-logo">
+                    <img src="../Image_Content/image.svg" width="100px" height="100px" alt="Restaurant Management System Logo" class="logo-icon">
+                    <span class="logo-text">Restaurant Management System</span>
+                </div>
+                <p>Crafted with passion — every dish tells a story. Fine dining since 2008.</p>
+            </div>
+
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="../Backend/menu.php">Menu</a></li>
+                    <li><a href="about.php">About Us</a></li>
+                    <li><a href="contact.php">Contact</a></li>
+                    <li><a href="suprise.html">Surprise</a></li>
+                    <li><a href="T&C.html">Terms & Conditions</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Opening Hours</h4>
+                <ul>
+                    <li>Mon – Fri: 11am – 10pm</li>
+                    <li>Saturday: 10am – 11pm</li>
+                    <li>Sunday: 10am – 9pm</li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Contact</h4>
+                <ul>
+                    <li>📍Plot No. 21, Ward 5/B, Adipur,<br>Gandhidham, Gujarat 370205</li>
+                    <li>📞 +91 90994-XXXXX</li>
+                    <li>✉️ hello@restaurantmanagement.com</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; <span id="current-year">2026</span> Restaurant Management System. Demonstration Prototype Only. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+</body>
+
+</html>

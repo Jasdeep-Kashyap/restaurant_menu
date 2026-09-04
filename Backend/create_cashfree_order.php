@@ -18,7 +18,7 @@ if (!$input) {
 }
 
 $customer_name  = trim($input['customer_name'] ?? '');
-$customer_email = trim($input['customer_email'] ?? 'customer@obsidian.com');
+$customer_email = trim($input['customer_email'] ?? 'customer@restaurantmanagement.com');
 $phone_raw      = trim($input['customer_phone'] ?? '');
 $phone_digits   = preg_replace('/[^0-9]/', '', $phone_raw);
 $customer_phone = (strlen($phone_digits) === 10 && in_array($phone_digits[0], ['6', '7', '8', '9'])) ? $phone_digits : '9876543210';

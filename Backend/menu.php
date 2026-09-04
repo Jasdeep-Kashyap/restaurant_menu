@@ -6,8 +6,8 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 require_once '../includes/auth.php'; // For csrf_token() helper
 
-$page_title = 'Our Menu — Obsidian';
-$page_desc = 'Browse Obsidian\'s curated fine-dining menu — starters, mains, desserts, and drinks. Order online.';
+$page_title = 'Our Menu — Restaurant Management System';
+$page_desc = 'Browse Restaurant Management System\'s curated fine-dining menu — starters, mains, desserts, and drinks. Order online.';
 
 /* ── Cart Actions ─────────────────────────────────────────── */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -669,8 +669,8 @@ include '../includes/header.php';
                 return;
             }
 
-            const activeCount = window.obsidianCart ? window.obsidianCart.count : <?= (int)$cart_count ?>;
-            const activeTotal = window.obsidianCart ? window.obsidianCart.total : <?= (float)$cart_total ?>;
+            const activeCount = window.restaurantCart ? window.restaurantCart.count : <?= (int)$cart_count ?>;
+            const activeTotal = window.restaurantCart ? window.restaurantCart.total : <?= (float)$cart_total ?>;
             if (activeCount <= 0 || activeTotal <= 0) {
                 alert('Your cart is empty. Please add items to your cart before proceeding to payment.');
                 step2.style.display = 'none';
@@ -766,8 +766,8 @@ include '../includes/header.php';
                 return;
             }
 
-            const activeCount = window.obsidianCart ? window.obsidianCart.count : <?= (int)$cart_count ?>;
-            const activeTotal = window.obsidianCart ? window.obsidianCart.total : <?= (float)$cart_total ?>;
+            const activeCount = window.restaurantCart ? window.restaurantCart.count : <?= (int)$cart_count ?>;
+            const activeTotal = window.restaurantCart ? window.restaurantCart.total : <?= (float)$cart_total ?>;
             if (activeCount <= 0 || activeTotal <= 0) {
                 alert('Your cart is empty! Please add items to your cart before checking out.');
                 return;
@@ -846,7 +846,7 @@ include '../includes/header.php';
 })();
 
 // ── Global Cart State ─────────────────────────────────────────
-window.obsidianCart = {
+window.restaurantCart = {
     total: <?= (float)$cart_total ?>,
     count: <?= (int)$cart_count ?>
 };
@@ -874,9 +874,9 @@ document.addEventListener('submit', function(e) {
             if (btn) btn.style.opacity = '1';
             
             // Update global JS cart state
-            if (window.obsidianCart) {
-                window.obsidianCart.total = parseFloat(data.cart_total_raw !== undefined ? data.cart_total_raw : 0);
-                window.obsidianCart.count = parseInt(data.cart_count || 0);
+            if (window.restaurantCart) {
+                window.restaurantCart.total = parseFloat(data.cart_total_raw !== undefined ? data.cart_total_raw : 0);
+                window.restaurantCart.count = parseInt(data.cart_count || 0);
             }
 
             // Update specific card buttons

@@ -3,8 +3,8 @@
 require_once '../includes/auth.php';
 auth_require(['admin', 'viewer']); // Both roles may view orders
 
-$page_title = 'Order Dashboard — Obsidian';
-$page_desc = 'Real-time order tracking dashboard for Obsidian restaurant.';
+$page_title = 'Order Dashboard — Restaurant Management System';
+$page_desc = 'Real-time order tracking dashboard for Restaurant Management System.';
 $_auth_role = auth_role();
 $_auth_user = auth_user();
 

@@ -5,7 +5,7 @@
 require_once '../includes/auth.php';
 auth_require(['admin']); // Admin-only page
 
-$page_title = 'Admin Panel — Obsidian';
+$page_title = 'Admin Panel — Restaurant Management System';
 $page_desc = 'Manage your restaurant menu items.';
 
 require_once '../includes/db.php';
@@ -1483,8 +1483,8 @@ $page_settings = file_exists($page_settings_file)
     <nav class="main-nav">
         <div class="nav-inner">
             <a href="../index.html" class="nav-logo">
-                <img src="../Image_Content/image.svg" alt="Obsidian Logo" class="logo-icon">
-                <span class="logo-text">Obsidian</span>
+                <img src="../Image_Content/image.svg" alt="Restaurant Management System Logo" class="logo-icon">
+                <span class="logo-text">Restaurant Management System</span>
             </a>
             <ul class="nav-links">
                 <li><a href="../index.html">Home</a></li>

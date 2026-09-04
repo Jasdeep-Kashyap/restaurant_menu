@@ -10,8 +10,8 @@ if (isset($_ps['contact']) && !$_ps['contact']) {
     exit;
 }
 
-$page_title = 'Contact Us — Obsidian';
-$page_desc = 'Get in touch with Obsidian. Find our address, opening hours, phone number, or send us a message to book a table.';
+$page_title = 'Contact Us — Restaurant Management System';
+$page_desc = 'Get in touch with Restaurant Management System. Find our address, opening hours, phone number, or send us a message to book a table.';
 
 require_once '../includes/db.php';
 require_once '../includes/auth.php';
@@ -83,7 +83,7 @@ include '../includes/header.php';
             <div class="contact-info-card">
                 <div class="contact-icon">✉️</div>
                 <h3>Email Us</h3>
-                <p>hello@obsidian.com</p>
+                <p>hello@restaurantmanagement.com</p>
             </div>
             <div class="contact-info-card">
                 <div class="contact-icon">🕐</div>
